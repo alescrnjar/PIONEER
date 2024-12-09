@@ -8,10 +8,31 @@ import tqdm
 import h5py
 import FUNCTIONS_4_DALdna
 #from characterize_seqs import calculate_cross_sequence_identity_batch
-import characterize_seqs
+#import characterize_seqs
 import matplotlib.pyplot as plt
 import Experiments
 import set_torch_tensors_test
+
+def percid_functions(X1, X2, batch_size=256):
+    # AC WARNING: the outputs has not yet normalized by sequence length, but it should be (Yagi)
+    percent_identity_1 = calculate_cross_sequence_identity_batch(X1, X2, batch_size)
+    max_percent_identity_1 = np.max(percent_identity_1, axis=1)
+
+    meanA = np.mean(percent_identity_1, axis=1)
+    mean_axis1=np.mean(meanA)
+    std_axis1=np.std(meanA)
+
+    mean_percent_identity_1 = np.max(percent_identity_1.flatten())
+    
+    average_max_percent_identity_1 = np.mean(max_percent_identity_1)
+    global_max_percent_identity_1 = np.max(max_percent_identity_1) 
+    return max_percent_identity_1, \
+           average_max_percent_identity_1, \
+           global_max_percent_identity_1, \
+           mean_percent_identity_1, \
+           mean_axis1, \
+           std_axis1 # max_percent_identity=array([17., 17., 15.]) average_max_percent_identity=16.333333333333332 global_max_percent_identity=17.0
+# https://github.com/niralisomia/Diffusion_Small_Data/blob/main/run_functional_sequence_similarity.py
 
 def contained_method_1(X1,X2):
     #found=False

@@ -19,15 +19,15 @@ import math
 import pytorch_lightning as pl
 #from lightning.pytorch import loggers as pl_loggers
 from pytorch_lightning import loggers as pl_loggers
-import InHouseCNN
+#import InHouseCNN
 #import deepstarr_model 
 import deepstarr_model_with_init 
 import tqdm
 #import torchsummary
 
 import wpcc_AC
-import loss_for_aleatoric
-import loss_for_evidential
+# import loss_for_aleatoric
+# import loss_for_evidential
 
 """ 
 https://github.com/p-koo/evoaug/blob/master/evoaug/evoaug.py 
@@ -49,16 +49,16 @@ def key_with_low(key_list,low):
 
 from filelock import FileLock 
 
-def get_evidential_loss(outputs, labels):
-    #print(f"{outputs=}")
-    mu=outputs[0] #QUIQUIURG gamma and mu are the same????
-    nu=outputs[1] #QUIQUIURG nu or logvar????
-    alpha=outputs[2]
-    beta=outputs[3]
-    lambda_=1. #QUIQUIURG is this choice ok????
-    # def evidential_loss(y, mu, v, alpha, beta, lambda_): #loss_for_evidential.py
-    loss=loss_for_evidential.evidential_loss(labels, mu, nu, alpha, beta, lambda_)
-    return loss
+# def get_evidential_loss(outputs, labels):
+#     #print(f"{outputs=}")
+#     mu=outputs[0] #QUIQUIURG gamma and mu are the same????
+#     nu=outputs[1] #QUIQUIURG nu or logvar????
+#     alpha=outputs[2]
+#     beta=outputs[3]
+#     lambda_=1. #QUIQUIURG is this choice ok????
+#     # def evidential_loss(y, mu, v, alpha, beta, lambda_): #loss_for_evidential.py
+#     loss=loss_for_evidential.evidential_loss(labels, mu, nu, alpha, beta, lambda_)
+#     return loss
 
 #################################################################################################################
 
@@ -572,7 +572,7 @@ class PL_ResidualBind(pl.LightningModule):
 
 
 
-from PL_mpra import *
+#from PL_mpra import *
 
 
 
@@ -720,10 +720,10 @@ class PL_LegNetPK(pl.LightningModule):
         if self.has_aleatoric=='no':
             loss_fn = nn.MSELoss() #.to(device)
             loss = loss_fn(outputs, labels)
-        elif self.has_aleatoric=='heteroscedastic': 
-            loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
-        elif self.has_aleatoric=='evidential':
-            loss=get_evidential_loss(outputs, labels)  
+        # elif self.has_aleatoric=='heteroscedastic': 
+        #     loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
+        # elif self.has_aleatoric=='evidential':
+        #     loss=get_evidential_loss(outputs, labels)  
         #""
         #abs_diff = np.abs(predictions-y_train_np)
         #el2n_final = np.mean(abs_diff,axis=1,keepdims=True)
@@ -750,10 +750,10 @@ class PL_LegNetPK(pl.LightningModule):
         if self.has_aleatoric=='no':
             loss_fn = nn.MSELoss() #.to(device)
             loss = loss_fn(outputs, labels)
-        elif self.has_aleatoric=='heteroscedastic': 
-            loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
-        elif self.has_aleatoric=='evidential':
-            loss=get_evidential_loss(outputs, labels)  
+        # elif self.has_aleatoric=='heteroscedastic': 
+        #     loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
+        # elif self.has_aleatoric=='evidential':
+        #     loss=get_evidential_loss(outputs, labels)  
         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #Lenti
         if self.has_aleatoric=='no':
             out_cpu=outputs.detach().cpu()
@@ -913,286 +913,286 @@ class PL_LegNetPK(pl.LightningModule):
 ###########################################
 
 
-import newresnet
+# import newresnet
 
-class PL_NewResNet(pl.LightningModule):
-    def __init__(self,
+# class PL_NewResNet(pl.LightningModule):
+#     def __init__(self,
                  
-                 #rbp_index=0,
-                 dataset_name='VTS1',
+#                  #rbp_index=0,
+#                  dataset_name='VTS1',
 
-                 batch_size=100, #V
-                 train_max_epochs=300, #V
-                 patience=20, #V
-                 min_delta=0.0, #V
-                 #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2013.h5', #V
-                 #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2009.h5', #V
-                 #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2009_processed_for_dal.h5', #V
-                 input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/newLentiMPRAHepG2_processed_for_dal.h5', #V
-                 lr=0.001, #V
-                 initial_ds=True,
+#                  batch_size=100, #V
+#                  train_max_epochs=300, #V
+#                  patience=20, #V
+#                  min_delta=0.0, #V
+#                  #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2013.h5', #V
+#                  #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2009.h5', #V
+#                  #input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/rnacompete2009_processed_for_dal.h5', #V
+#                  input_h5_file=get_github_main_directory(reponame='DALdna')+'inputs/newLentiMPRAHepG2_processed_for_dal.h5', #V
+#                  lr=0.001, #V
+#                  initial_ds=True,
 
-                 weight_decay=0.0, #1e-6, 
-                 min_lr=0.0, #0.0, #default when not present (configure_optimizer in evoaug_analysis_utils_AC.py)                                                     #NewResNet
-                 lr_patience=7, #?
-                 decay_factor=0.3, #?
+#                  weight_decay=0.0, #1e-6, 
+#                  min_lr=0.0, #0.0, #default when not present (configure_optimizer in evoaug_analysis_utils_AC.py)                                                     #NewResNet
+#                  lr_patience=7, #?
+#                  decay_factor=0.3, #?
 
-                 scale=0.001, # 0.001 or 0.005 according to Chandana
+#                  scale=0.001, # 0.001 or 0.005 according to Chandana
 
-                 initialization='kaiming_uniform', # original: 'kaiming_normal', #AC 
-                 initialize_dense=False, 
+#                  initialization='kaiming_uniform', # original: 'kaiming_normal', #AC 
+#                  initialize_dense=False, 
 
-                 extra_str='',
-                 ):
-        #         resnet.fit(train, valid, num_epochs=300, batch_size=100, patience=20, lr=0.001, lr_decay=0.3, decay_patience=7)
-        super().__init__()
-        self.scale=scale
+#                  extra_str='',
+#                  ):
+#         #         resnet.fit(train, valid, num_epochs=300, batch_size=100, patience=20, lr=0.001, lr_decay=0.3, decay_patience=7)
+#         super().__init__()
+#         self.scale=scale
 
-        normalization = 'log_norm'   # 'log_norm' or 'clip_norm'
-        ss_type = 'seq' # 'seq', 'pu', or 'struct'
+#         normalization = 'log_norm'   # 'log_norm' or 'clip_norm'
+#         ss_type = 'seq' # 'seq', 'pu', or 'struct'
 
-        self.input_h5_file=input_h5_file
-        data = h5py.File(input_h5_file, 'r')
-        #if input_h5_file==get_github_main_directory(reponame='DALdna')+'inputs/Orig_DeepSTARR_1dim.h5':
+#         self.input_h5_file=input_h5_file
+#         data = h5py.File(input_h5_file, 'r')
+#         #if input_h5_file==get_github_main_directory(reponame='DALdna')+'inputs/Orig_DeepSTARR_1dim.h5':
 
-        self.initial_ds=initial_ds
+#         self.initial_ds=initial_ds
 
-        if initial_ds:
-            self.X_train=torch.tensor(np.array(data['X_train'])) ##.requires_grad_(True)
-            self.y_train=torch.tensor(np.array(data['Y_train'])) ##.requires_grad_(True)                               #NewResNet
-            self.X_test=torch.tensor(np.array(data['X_test'])) ##.requires_grad_(True)
-            self.y_test=torch.tensor(np.array(data['Y_test'])) ##.requires_grad_(True)
-            self.X_valid=torch.tensor(np.array(data['X_valid'])) ##.requires_grad_(True)
-            self.y_valid=torch.tensor(np.array(data['Y_valid'])) ##.requires_grad_(True)
-            self.X_test2=self.X_test ##.requires_grad_(True)
-            self.y_test2=self.y_test ##.requires_grad_(True)
-        else:
-            self.X_train=data['X_train'] ##.requires_grad_(True)
-            self.y_train=data['Y_train'] ##.requires_grad_(True)
-            self.X_test=data['X_test'] ##.requires_grad_(True)
-            self.y_test=data['Y_test'] ##.requires_grad_(True)
-            self.X_test2=data['X_test2'] ##.requires_grad_(True)                         #NewResNet
-            self.y_test2=data['Y_test2'] ##.requires_grad_(True)
-            self.X_valid=data['X_valid'] ##.requires_grad_(True)
-            self.y_valid=data['Y_valid'] ##.requires_grad_(True)
+#         if initial_ds:
+#             self.X_train=torch.tensor(np.array(data['X_train'])) ##.requires_grad_(True)
+#             self.y_train=torch.tensor(np.array(data['Y_train'])) ##.requires_grad_(True)                               #NewResNet
+#             self.X_test=torch.tensor(np.array(data['X_test'])) ##.requires_grad_(True)
+#             self.y_test=torch.tensor(np.array(data['Y_test'])) ##.requires_grad_(True)
+#             self.X_valid=torch.tensor(np.array(data['X_valid'])) ##.requires_grad_(True)
+#             self.y_valid=torch.tensor(np.array(data['Y_valid'])) ##.requires_grad_(True)
+#             self.X_test2=self.X_test ##.requires_grad_(True)
+#             self.y_test2=self.y_test ##.requires_grad_(True)
+#         else:
+#             self.X_train=data['X_train'] ##.requires_grad_(True)
+#             self.y_train=data['Y_train'] ##.requires_grad_(True)
+#             self.X_test=data['X_test'] ##.requires_grad_(True)
+#             self.y_test=data['Y_test'] ##.requires_grad_(True)
+#             self.X_test2=data['X_test2'] ##.requires_grad_(True)                         #NewResNet
+#             self.y_test2=data['Y_test2'] ##.requires_grad_(True)
+#             self.X_valid=data['X_valid'] ##.requires_grad_(True)
+#             self.y_valid=data['Y_valid'] ##.requires_grad_(True)
 
-        ##os.system('date')
-        #input_shape = self.X_train[0].shape
-        #input_shape = self.X_train.shape[1:]
-        #input_shape = (self.X_train.shape[-2],self.X_train.shape[-1])
-        input_shape = (self.X_train.shape[-1],self.X_train.shape[-2])
-        #input_shape = list(train['inputs'].shape)[1:]
-        #print(f"DEBUG: {input_shape=} {self.X_train.shape=}")
+#         ##os.system('date')
+#         #input_shape = self.X_train[0].shape
+#         #input_shape = self.X_train.shape[1:]
+#         #input_shape = (self.X_train.shape[-2],self.X_train.shape[-1])
+#         input_shape = (self.X_train.shape[-1],self.X_train.shape[-2])
+#         #input_shape = list(train['inputs'].shape)[1:]
+#         #print(f"DEBUG: {input_shape=} {self.X_train.shape=}")
         
-        if 'heteroscedastic' in extra_str:
-            self.has_aleatoric='heteroscedastic'
-            self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE',
-                               'PCCaleat','Spearmanaleat','WPCCaleat','MSEaleat','WMSEaleat'] 
-        elif 'evidential' in extra_str:
-            self.has_aleatoric='evidential'
-            self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
-        else:
-            self.has_aleatoric='no'
-            self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
+#         if 'heteroscedastic' in extra_str:
+#             self.has_aleatoric='heteroscedastic'
+#             self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE',
+#                                'PCCaleat','Spearmanaleat','WPCCaleat','MSEaleat','WMSEaleat'] 
+#         elif 'evidential' in extra_str:
+#             self.has_aleatoric='evidential'
+#             self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
+#         else:
+#             self.has_aleatoric='no'
+#             self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
 
-        num_class = 1
-        if self.has_aleatoric=='no':
-            self.model=newresnet.NewResNet()
-        elif self.has_aleatoric=='heteroscedastic':
-            self.model=newresnet.NewResNet(unc_control='heteroscedastic')
-        elif self.has_aleatoric=='evidential':
-            self.model=newresnet.NewResNet(unc_control='evidential')
+#         num_class = 1
+#         if self.has_aleatoric=='no':
+#             self.model=newresnet.NewResNet()
+#         elif self.has_aleatoric=='heteroscedastic':
+#             self.model=newresnet.NewResNet(unc_control='heteroscedastic')
+#         elif self.has_aleatoric=='evidential':
+#             self.model=newresnet.NewResNet(unc_control='evidential')
 
-        self.name='ResidualBind'
-        self.task_type='single_task_regression'
-        #self.metric_names=['PCC','Spearman']
-        #self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
-        ##self.calc_el2n=True #EL2N
-        self.el2n_scores_per_epoch=[] #EL2N
+#         self.name='ResidualBind'
+#         self.task_type='single_task_regression'
+#         #self.metric_names=['PCC','Spearman']
+#         #self.metric_names=['PCC','Spearman','WPCC','MSE','WMSE'] 
+#         ##self.calc_el2n=True #EL2N
+#         self.el2n_scores_per_epoch=[] #EL2N
 
-        self.batch_size=batch_size
-        self.train_max_epochs=train_max_epochs
-        self.patience=patience
-        self.lr=lr
-        self.min_delta=min_delta #for trainer, but accessible as an attribute if needed                                                     #NewResNet
-        self.weight_decay=weight_decay
+#         self.batch_size=batch_size
+#         self.train_max_epochs=train_max_epochs
+#         self.patience=patience
+#         self.lr=lr
+#         self.min_delta=min_delta #for trainer, but accessible as an attribute if needed                                                     #NewResNet
+#         self.weight_decay=weight_decay
 
-        #""
-        self.min_lr=min_lr 
-        self.lr_patience=lr_patience 
-        self.decay_factor=decay_factor 
-        #""
+#         #""
+#         self.min_lr=min_lr 
+#         self.lr_patience=lr_patience 
+#         self.decay_factor=decay_factor 
+#         #""
 
 
-    #""
-    def training_step(self, batch, batch_idx): #QUIQUIURG
-        #print("\n\n\n--- --- --- --- HERE HERE HERE")
-        self.model.train() # https://lightning.ai/docs/pytorch/stable/model/train_model_basic.html
-        inputs, labels = batch 
-        outputs=self.model(inputs)
-        if self.has_aleatoric=='no':
-            loss_fn = nn.MSELoss() #.to(device)
-            loss = loss_fn(outputs, labels)                                                     #NewResNet
-        elif self.has_aleatoric=='heteroscedastic': 
-            loss=loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
-        elif self.has_aleatoric=='evidential':
-            loss=get_evidential_loss(outputs, labels)                                                     #NewResNet
+#     #""
+#     def training_step(self, batch, batch_idx): #QUIQUIURG
+#         #print("\n\n\n--- --- --- --- HERE HERE HERE")
+#         self.model.train() # https://lightning.ai/docs/pytorch/stable/model/train_model_basic.html
+#         inputs, labels = batch 
+#         outputs=self.model(inputs)
+#         if self.has_aleatoric=='no':
+#             loss_fn = nn.MSELoss() #.to(device)
+#             loss = loss_fn(outputs, labels)                                                     #NewResNet
+#         elif self.has_aleatoric=='heteroscedastic': 
+#             loss=loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
+#         elif self.has_aleatoric=='evidential':
+#             loss=get_evidential_loss(outputs, labels)                                                     #NewResNet
 
-        """
-        abs_diff = np.abs(predictions-y_train_np)
-        el2n_final = np.mean(abs_diff,axis=1,keepdims=True)
-        """
-        if self.has_aleatoric=='no':
-            self.el2n_scores_per_epoch.append(np.array(torch.abs(outputs-labels).detach().cpu())) #EL2N
+#         """
+#         abs_diff = np.abs(predictions-y_train_np)
+#         el2n_final = np.mean(abs_diff,axis=1,keepdims=True)
+#         """
+#         if self.has_aleatoric=='no':
+#             self.el2n_scores_per_epoch.append(np.array(torch.abs(outputs-labels).detach().cpu())) #EL2N
 
-        self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
+#         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
 
-        return loss
-    #""
+#         return loss
+#     #""
         
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=self.lr_patience, min_lr=self.min_lr, factor=self.decay_factor)                                                     #NewResNet
-        #return optimizer
-        return {"optimizer": optimizer, "lr_scheduler": {"scheduler":scheduler, "monitor": "val_loss"}} 
+#     def configure_optimizers(self):
+#         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+#         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=self.lr_patience, min_lr=self.min_lr, factor=self.decay_factor)                                                     #NewResNet
+#         #return optimizer
+#         return {"optimizer": optimizer, "lr_scheduler": {"scheduler":scheduler, "monitor": "val_loss"}} 
     
     
-    def validation_step(self, batch, batch_idx): #QUIQUIURG
-        self.model.eval()
-        inputs, labels = batch 
-        outputs=self.model(inputs)
-        if self.has_aleatoric=='no':
-            loss_fn = nn.MSELoss() #.to(device)
-            loss = loss_fn(outputs, labels)
-        elif self.has_aleatoric=='heteroscedastic': 
-            loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
-        elif self.has_aleatoric=='evidential':
-            loss=get_evidential_loss(outputs, labels)  
-        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
-        if self.has_aleatoric=='no':
-            out_cpu=outputs.detach().cpu()
-            lab_cpu=labels.detach().cpu()
-            pcc=torch.tensor(self.metrics(out_cpu, lab_cpu)['PCC']) # QUIQUIURG is this per batch? Or having self.log on_epoch=True makes it an average of all batches? Maybe see a posteriori? See here maybe: https://www.exxactcorp.com/blog/Deep-Learning/advanced-pytorch-lightning-using-torchmetrics-and-lightning-flash
-            self.log("val_pcc", pcc, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     
-        #return loss
+#     def validation_step(self, batch, batch_idx): #QUIQUIURG
+#         self.model.eval()
+#         inputs, labels = batch 
+#         outputs=self.model(inputs)
+#         if self.has_aleatoric=='no':
+#             loss_fn = nn.MSELoss() #.to(device)
+#             loss = loss_fn(outputs, labels)
+#         elif self.has_aleatoric=='heteroscedastic': 
+#             loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
+#         elif self.has_aleatoric=='evidential':
+#             loss=get_evidential_loss(outputs, labels)  
+#         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
+#         if self.has_aleatoric=='no':
+#             out_cpu=outputs.detach().cpu()
+#             lab_cpu=labels.detach().cpu()
+#             pcc=torch.tensor(self.metrics(out_cpu, lab_cpu)['PCC']) # QUIQUIURG is this per batch? Or having self.log on_epoch=True makes it an average of all batches? Maybe see a posteriori? See here maybe: https://www.exxactcorp.com/blog/Deep-Learning/advanced-pytorch-lightning-using-torchmetrics-and-lightning-flash
+#             self.log("val_pcc", pcc, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     
+#         #return loss
 
-    def test_step(self, batch, batch_idx): #QUIQUIURG
-        self.model.eval()
-        inputs, labels = batch 
-        outputs=self.model(inputs)
-        if self.has_aleatoric=='no':
-            loss_fn = nn.MSELoss() #.to(device)
-            loss = loss_fn(outputs, labels)
-        elif self.has_aleatoric=='heteroscedastic': 
-            loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
-        elif self.has_aleatoric=='evidential':
-            loss=get_evidential_loss(outputs, labels)  
-        loss = loss_fn(outputs, labels)
-        self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
-        #return loss
+#     def test_step(self, batch, batch_idx): #QUIQUIURG
+#         self.model.eval()
+#         inputs, labels = batch 
+#         outputs=self.model(inputs)
+#         if self.has_aleatoric=='no':
+#             loss_fn = nn.MSELoss() #.to(device)
+#             loss = loss_fn(outputs, labels)
+#         elif self.has_aleatoric=='heteroscedastic': 
+#             loss= loss_for_aleatoric.gaussian_nll_loss(labels, outputs)
+#         elif self.has_aleatoric=='evidential':
+#             loss=get_evidential_loss(outputs, labels)  
+#         loss = loss_fn(outputs, labels)
+#         self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)                                                     #NewResNet
+#         #return loss
     
-    def metrics(self, y_score, y_true):
-        vals = []
-        for output_index in range(y_score.shape[-1]):
-            vals.append(stats.spearmanr(y_true[:,output_index], y_score[:,output_index])[0])                                                         #NewResNet
-        spearmanr_vals=np.array(vals)
-        #
-        vals = []
-        for output_index in range(y_score.shape[-1]):
-            vals.append(stats.pearsonr(y_true[:,output_index], y_score[:,output_index])[0] )                                                         #NewResNet
-        pearsonr_vals=np.array(vals)
+#     def metrics(self, y_score, y_true):
+#         vals = []
+#         for output_index in range(y_score.shape[-1]):
+#             vals.append(stats.spearmanr(y_true[:,output_index], y_score[:,output_index])[0])                                                         #NewResNet
+#         spearmanr_vals=np.array(vals)
+#         #
+#         vals = []
+#         for output_index in range(y_score.shape[-1]):
+#             vals.append(stats.pearsonr(y_true[:,output_index], y_score[:,output_index])[0] )                                                         #NewResNet
+#         pearsonr_vals=np.array(vals)
 
-        vals = []
-        for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.wpearsonr(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
-        wpcc_vals=np.array(vals)
+#         vals = []
+#         for output_index in range(y_score.shape[-1]):
+#             vals.append(wpcc_AC.wpearsonr(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+#         wpcc_vals=np.array(vals)
 
-        vals = []
-        for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
-        mse_vals=np.array(vals)
+#         vals = []
+#         for output_index in range(y_score.shape[-1]):
+#             vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+#         mse_vals=np.array(vals)
 
-        vals = []
-        for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
-        wmse_vals=np.array(vals)
+#         vals = []
+#         for output_index in range(y_score.shape[-1]):
+#             vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+#         wmse_vals=np.array(vals)
 
-        #metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals}
-        if self.has_aleatoric=='no':
-            metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals,'WPCC':wpcc_vals,'MSE':mse_vals,'WMSE':wmse_vals}
-        elif self.has_aleatoric=='heteroscedastic':
-            metrics={'Spearman':spearmanr_vals[0],'PCC':pearsonr_vals[0],
-                     'Spearmanaleat':spearmanr_vals[1],'PCCaleat':pearsonr_vals[1],
-                     'WPCC':wpcc_vals[0],'MSE':mse_vals[0],'WMSE':wmse_vals[0],
-                     'WPCCaleat':wpcc_vals[1],'MSEaleat':mse_vals[1],'WMSEaleat':wmse_vals[1]}
-        return metrics
+#         #metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals}
+#         if self.has_aleatoric=='no':
+#             metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals,'WPCC':wpcc_vals,'MSE':mse_vals,'WMSE':wmse_vals}
+#         elif self.has_aleatoric=='heteroscedastic':
+#             metrics={'Spearman':spearmanr_vals[0],'PCC':pearsonr_vals[0],
+#                      'Spearmanaleat':spearmanr_vals[1],'PCCaleat':pearsonr_vals[1],
+#                      'WPCC':wpcc_vals[0],'MSE':mse_vals[0],'WMSE':wmse_vals[0],
+#                      'WPCCaleat':wpcc_vals[1],'MSEaleat':mse_vals[1],'WMSEaleat':wmse_vals[1]}
+#         return metrics
 
-    def get_el2n_scores(self): #EL2N
-        ##if 'EL2N' in model.metric_names: 
-        ##if model.calc_el2n==True:      
-        ##    print(f"{model.el2n_scores_per_epoch.shape=}") 
-        ##    el2n_scores=np.mean(model.el2n_scores_per_epoch,axis=1)   
-        el2n_scores=np.mean(self.el2n_scores_per_epoch,axis=1)
-        return el2n_scores
+#     def get_el2n_scores(self): #EL2N
+#         ##if 'EL2N' in model.metric_names: 
+#         ##if model.calc_el2n==True:      
+#         ##    print(f"{model.el2n_scores_per_epoch.shape=}") 
+#         ##    el2n_scores=np.mean(model.el2n_scores_per_epoch,axis=1)   
+#         el2n_scores=np.mean(self.el2n_scores_per_epoch,axis=1)
+#         return el2n_scores
 
-    def get_el2n_scores_with_load(self, path): #EL2N
-        el2nscores_per_epoch=np.load(path)
-        el2n_scores=np.mean(el2nscores_per_epoch,axis=1) #EL2N
-        return el2n_scores #EL2N
+#     def get_el2n_scores_with_load(self, path): #EL2N
+#         el2nscores_per_epoch=np.load(path)
+#         el2n_scores=np.mean(el2nscores_per_epoch,axis=1) #EL2N
+#         return el2n_scores #EL2N
 
-    def forward(self, x):                                                     #NewResNet
-        return self.model(x)
+#     def forward(self, x):                                                     #NewResNet
+#         return self.model(x)
 
-    def predict_custom(self, X, keepgrad=False): #QUIQUINONURG probably there is a non custom version of this
-        self.model.eval()
-        dataloader=torch.utils.data.DataLoader(X, batch_size=self.batch_size, shuffle=False)                                                     #NewResNet
-        preds=torch.empty(0)
-        if keepgrad: 
-            preds = preds.to(self.device)
-        else:
-            preds = preds.cpu()
+#     def predict_custom(self, X, keepgrad=False): #QUIQUINONURG probably there is a non custom version of this
+#         self.model.eval()
+#         dataloader=torch.utils.data.DataLoader(X, batch_size=self.batch_size, shuffle=False)                                                     #NewResNet
+#         preds=torch.empty(0)
+#         if keepgrad: 
+#             preds = preds.to(self.device)
+#         else:
+#             preds = preds.cpu()
             
-        #preds=np.empty((0,1)) #GOODOLD
-        #for x in dataloader:
-        #print('in custom')
-        #print('preds.shape: ',preds.shape)
-        #for x in tqdm.tqdm(dataloader, total=len(dataloader)):
-        for x in dataloader:
-            pred=self.model(x)
-            if self.has_aleatoric=='no' or self.has_aleatoric=='heteroscedastic':
-                if not keepgrad: pred=pred.detach().cpu()
-            elif self.has_aleatoric=='evidential':
-                if not keepgrad: 
-                    pred=pred[0].detach().cpu(),pred[1].detach().cpu(),pred[2].detach().cpu(),pred[3].detach().cpu()
-            if self.has_aleatoric!='evidential':
-                preds=torch.cat((preds,pred),axis=0)
-            else:
-                preds=torch.cat((preds[0],pred[0]),axis=0),torch.cat((preds[1],pred[1]),axis=0),torch.cat((preds[2],pred[2]),axis=0),torch.cat((preds[3],pred[3]),axis=0)
-        return preds
+#         #preds=np.empty((0,1)) #GOODOLD
+#         #for x in dataloader:
+#         #print('in custom')
+#         #print('preds.shape: ',preds.shape)
+#         #for x in tqdm.tqdm(dataloader, total=len(dataloader)):
+#         for x in dataloader:
+#             pred=self.model(x)
+#             if self.has_aleatoric=='no' or self.has_aleatoric=='heteroscedastic':
+#                 if not keepgrad: pred=pred.detach().cpu()
+#             elif self.has_aleatoric=='evidential':
+#                 if not keepgrad: 
+#                     pred=pred[0].detach().cpu(),pred[1].detach().cpu(),pred[2].detach().cpu(),pred[3].detach().cpu()
+#             if self.has_aleatoric!='evidential':
+#                 preds=torch.cat((preds,pred),axis=0)
+#             else:
+#                 preds=torch.cat((preds[0],pred[0]),axis=0),torch.cat((preds[1],pred[1]),axis=0),torch.cat((preds[2],pred[2]),axis=0),torch.cat((preds[3],pred[3]),axis=0)
+#         return preds
 
-    def predict_custom_mcdropout(self, X,seed=41, keepgrad=False):
-        torch.manual_seed(seed) #QUIQUIURG this has been a problem for the line defining index in test_hessian_proposer, may be also for DAL.py
-        random.seed(seed)
-        np.random.seed(seed)                                                     #NewResNet
-        self.model.eval()
-        for m in self.model.modules():
-            if m.__class__.__name__.startswith('Dropout'): #QUIQUINONURG endswith ropout???
-                m.train()
-        #
-        dataloader=torch.utils.data.DataLoader(X, batch_size=self.batch_size, shuffle=False)
-        preds=torch.empty(0)
-        if keepgrad: 
-            preds = preds.to(self.device)
-        else:
-            preds = preds.cpu()
+#     def predict_custom_mcdropout(self, X,seed=41, keepgrad=False):
+#         torch.manual_seed(seed) #QUIQUIURG this has been a problem for the line defining index in test_hessian_proposer, may be also for DAL.py
+#         random.seed(seed)
+#         np.random.seed(seed)                                                     #NewResNet
+#         self.model.eval()
+#         for m in self.model.modules():
+#             if m.__class__.__name__.startswith('Dropout'): #QUIQUINONURG endswith ropout???
+#                 m.train()
+#         #
+#         dataloader=torch.utils.data.DataLoader(X, batch_size=self.batch_size, shuffle=False)
+#         preds=torch.empty(0)
+#         if keepgrad: 
+#             preds = preds.to(self.device)
+#         else:
+#             preds = preds.cpu()
 
-        #for x in tqdm.tqdm(dataloader, total=len(dataloader)):
-        for x in dataloader:
-            pred=self.model(x)
-            if not keepgrad: pred=pred.detach().cpu()
-            preds=torch.cat((preds,pred),axis=0)
+#         #for x in tqdm.tqdm(dataloader, total=len(dataloader)):
+#         for x in dataloader:
+#             pred=self.model(x)
+#             if not keepgrad: pred=pred.detach().cpu()
+#             preds=torch.cat((preds,pred),axis=0)
         
-        return preds
+#         return preds
 
 
 

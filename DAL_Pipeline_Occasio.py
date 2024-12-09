@@ -29,7 +29,7 @@ sys.path.append('./blackbox_splice_segmenter/segmenters')
 ##from utils import categorical_crossentropy_2d, spliceAI_data_set, train_model
 #from utils_splice_AC import categorical_crossentropy_2d, spliceAI_data_set_AC, train_model, test_model, Ensemble
 
-from InHouseCNN import *
+#from InHouseCNN import *
 
 from filelock import FileLock 
 

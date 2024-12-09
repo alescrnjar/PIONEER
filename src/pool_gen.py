@@ -7,8 +7,8 @@ from time import time
 import pickle 
 import tqdm
 
-import potts_AC
-import hessian_AC
+#import potts_AC
+#import hessian_AC
 
 import augment
 import evoaug_augmentations
@@ -145,13 +145,13 @@ class SequenceProposer(object):
         elif generation_method == 'saliency_U-A':
             self.generate_batch =self.mutate_by_saliency
 
-        elif generation_method == 'salfirstlayer':
-            self.generate_batch =self.mutate_by_saliencyfirstlayer
+        # elif generation_method == 'salfirstlayer':
+        #     self.generate_batch =self.mutate_by_saliencyfirstlayer
         
-        elif generation_method == 'hessian':
-            self.generate_batch =self.mutate_by_hessian
-        elif generation_method == 'hessian_y':
-            self.generate_batch =self.mutate_by_hessian
+        # elif generation_method == 'hessian':
+        #     self.generate_batch =self.mutate_by_hessian
+        # elif generation_method == 'hessian_y':
+        #     self.generate_batch =self.mutate_by_hessian
         
         elif generation_method == 'simulated_annealing':
             self.generate_batch = self.simulated_annealing
@@ -167,8 +167,8 @@ class SequenceProposer(object):
             self.generate_batch = self.genetic
         elif generation_method == 'genetic_y':
             self.generate_batch = self.genetic
-        elif generation_method == 'potts': #AC
-            self.generate_batch = self.potts_chain
+        # elif generation_method == 'potts': #AC
+        #     self.generate_batch = self.potts_chain
         
         elif generation_method=='evoaug': #AC
             self.generate_batch = self.evoaug
@@ -198,12 +198,12 @@ class SequenceProposer(object):
         else:
             assert False, "%s has not been implemented as a sequence generation method"
             
-    def potts_chain(self, x_source, n_to_make, cycles=1): #AC
-        originals = self.select_from_source(n_to_make, x_source, replace = False)
-        for c in range(cycles):
-            #to_mutate = self.make_mutants(to_mutate,mutation_number)
-            to_mutate=originals #TEMP
-        return(torch.Tensor(to_mutate))
+    # def potts_chain(self, x_source, n_to_make, cycles=1): #AC
+    #     originals = self.select_from_source(n_to_make, x_source, replace = False)
+    #     for c in range(cycles):
+    #         #to_mutate = self.make_mutants(to_mutate,mutation_number)
+    #         to_mutate=originals #TEMP
+    #     return(torch.Tensor(to_mutate))
     
     #def motifembed(self,n_to_make,seq_length,file_path,core_names):
     #    #proposed_X=gen_synth_embed.make_sim_seqs(num_seq = 5000,seq_length = 230, file_path='./pfm_AC_all.txt',core_names=['HNF4G'])
@@ -1049,622 +1049,622 @@ class SequenceProposer(object):
         return(torch.Tensor(to_mutate))    
 
     #""
-    def hessian_one_step(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='y'):
-    #def hessian_one_step(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='unc'):
+    # def hessian_one_step(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='y'):
+    # #def hessian_one_step(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='unc'):
 
-        # Copy array
-        to_mutate = np.array(to_optimize)
+    #     # Copy array
+    #     to_mutate = np.array(to_optimize)
         
-        seqs, nts, pos =  to_mutate.shape
-        batch_hessians=[]
-        #[m.zero_grad() for m in ranker.Predictive_Models]
+    #     seqs, nts, pos =  to_mutate.shape
+    #     batch_hessians=[]
+    #     #[m.zero_grad() for m in ranker.Predictive_Models]
         
-        #for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
-        #    x = torch.tensor(batch).float().requires_grad_()
-        #    print('x: ',x)
-        #    x.retain_grad()
+    #     #for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
+    #     #    x = torch.tensor(batch).float().requires_grad_()
+    #     #    print('x: ',x)
+    #     #    x.retain_grad()
         
-        for i in range(seqs):
+    #     for i in range(seqs):
         
-            x = to_mutate[i]
-            x = torch.tensor(x).unsqueeze(0).float().requires_grad_()
+    #         x = to_mutate[i]
+    #         x = torch.tensor(x).unsqueeze(0).float().requires_grad_()
 
-            x.retain_grad()
+    #         x.retain_grad()
             
-            if to_backprop=='y':
-                hess=torch.autograd.functional.hessian(ranker.Predictive_Models[0].predict_custom,x[0].unsqueeze(0)) #QUIQUIURG average over all Predictive Models #QUIQUISOLVED? torch.autograd.functional.hessian can in principle have create_graph but shouldnt be necessary unless for third order derivative
-            elif to_backprop=='unc':
-                hess=torch.autograd.functional.hessian(ranker.calculate_desiderata_4Hess,x[0].unsqueeze(0))
+    #         if to_backprop=='y':
+    #             hess=torch.autograd.functional.hessian(ranker.Predictive_Models[0].predict_custom,x[0].unsqueeze(0)) #QUIQUIURG average over all Predictive Models #QUIQUISOLVED? torch.autograd.functional.hessian can in principle have create_graph but shouldnt be necessary unless for third order derivative
+    #         elif to_backprop=='unc':
+    #             hess=torch.autograd.functional.hessian(ranker.calculate_desiderata_4Hess,x[0].unsqueeze(0))
 
-            [m.zero_grad() for m in ranker.Predictive_Models]
+    #         [m.zero_grad() for m in ranker.Predictive_Models]
 
-            batch_hessians.append(hess)
+    #         batch_hessians.append(hess)
 
-            #if temp == 'neg_inf':
-            for __ in ['dummy']: #QUIQUINONURG
+    #         #if temp == 'neg_inf':
+    #         for __ in ['dummy']: #QUIQUINONURG
 
-                def multidim_argsort_hess(hess, temperature=1):
-                    flat=[]
-                    indexes=[]
-                    boltz=[]
-                    for i0 in range(hess.shape[0]):
-                        for i1 in range(hess.shape[1]):
-                            for i2 in range(hess.shape[2]):
-                                for i3 in range(hess.shape[3]):
-                                    if not(i0==i2 or i1==i3): # otherwise the pair of index couples indicates the same nt to mutate
-                                        flat.append(hess[i0,i1,i2,i3].item())
-                                        indexes.append([i0,i1,i2,i3])
-                                        if temperature=='neg_inf':
-                                            #print("NEGING!!")
-                                            boltz.append(0.0) # dummy
+    #             def multidim_argsort_hess(hess, temperature=1):
+    #                 flat=[]
+    #                 indexes=[]
+    #                 boltz=[]
+    #                 for i0 in range(hess.shape[0]):
+    #                     for i1 in range(hess.shape[1]):
+    #                         for i2 in range(hess.shape[2]):
+    #                             for i3 in range(hess.shape[3]):
+    #                                 if not(i0==i2 or i1==i3): # otherwise the pair of index couples indicates the same nt to mutate
+    #                                     flat.append(hess[i0,i1,i2,i3].item())
+    #                                     indexes.append([i0,i1,i2,i3])
+    #                                     if temperature=='neg_inf':
+    #                                         #print("NEGING!!")
+    #                                         boltz.append(0.0) # dummy
 
-                                        else:
-                                            boltz.append(np.exp(-hess[i0,i1,i2,i3].item()/temperature))
-                    boltz=np.array(boltz)
-                    if temperature!='neg_inf':
-                        boltz/=np.sum(boltz, axis=0)
-                    order=np.argsort(flat)[::-1]
-                    #print(f"{order[0:10]=}")
-                    #print(f"{flat[0:10]=}")
-                    #print(f"{boltz[0:10]=}")
-                    #print(f"{len(order)=}")
-                    #print(f"{len(flat)=}")
-                    indexes_ordered=np.array(indexes)[order]
-                    flat_ordered=np.array(flat)[order]
-                    #flat_ordered=flat[0:10]
-                    #flat_ordered=flat[order[-1]]
-                    #print(f"{flat_ordered=}")
-                    boltz_ordered=boltz[order]
-                    #print(f"{boltz_ordered.shape=}")
-                    #exit()
-                    return indexes_ordered, flat_ordered, boltz_ordered #np.array(indexes)[order], flat[order], boltz[order]
+    #                                     else:
+    #                                         boltz.append(np.exp(-hess[i0,i1,i2,i3].item()/temperature))
+    #                 boltz=np.array(boltz)
+    #                 if temperature!='neg_inf':
+    #                     boltz/=np.sum(boltz, axis=0)
+    #                 order=np.argsort(flat)[::-1]
+    #                 #print(f"{order[0:10]=}")
+    #                 #print(f"{flat[0:10]=}")
+    #                 #print(f"{boltz[0:10]=}")
+    #                 #print(f"{len(order)=}")
+    #                 #print(f"{len(flat)=}")
+    #                 indexes_ordered=np.array(indexes)[order]
+    #                 flat_ordered=np.array(flat)[order]
+    #                 #flat_ordered=flat[0:10]
+    #                 #flat_ordered=flat[order[-1]]
+    #                 #print(f"{flat_ordered=}")
+    #                 boltz_ordered=boltz[order]
+    #                 #print(f"{boltz_ordered.shape=}")
+    #                 #exit()
+    #                 return indexes_ordered, flat_ordered, boltz_ordered #np.array(indexes)[order], flat[order], boltz[order]
 
-                sq_hess=hess.squeeze(3).squeeze(0) # shape=(1, 4, 39, 1, 4, 39) -> (1, 4, 39, 4, 39)
-                argsorts,flat_hess,boltz=multidim_argsort_hess(sq_hess, temperature=temp)
+    #             sq_hess=hess.squeeze(3).squeeze(0) # shape=(1, 4, 39, 1, 4, 39) -> (1, 4, 39, 4, 39)
+    #             argsorts,flat_hess,boltz=multidim_argsort_hess(sq_hess, temperature=temp)
 
-                if temp=='neg_inf':
-                    i_mut=0
-                else:
-                    print(f"{argsorts[0]=}")
-                    #i_mut=self.rng.choice(argsorts, p=boltz) #ValueError: a must be 1-dimensional
-                    #chosen_index=self.rng.choice(np.arange(len(argsorts)), p=boltz)
-                    #i_mut=argsorts[chosen_index]
-                    i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz)
-                accepted=0
-                while accepted<mutation_numbers:
-                    idx=argsorts[i_mut] #hessian indexes corresponding to greatest hessian (i_mut=0), second greatest (i_mut=1), ...
-                    prev_ind1=np.argmax(to_mutate[i,:,idx[1]]) #argmax does return the index for the 1
-                    prev_ind2=np.argmax(to_mutate[i,:,idx[3]])
-                    if (not_to_obtain==None).any:
-                        condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2]))
-                    else:
-                        print(f"{not_to_obtain=} {not_to_obtain.any==None=} {not_to_obtain.all==None=}")
-                        old_ind1=np.argmax(not_to_obtain[i,:,idx[1]])
-                        old_ind2=np.argmax(not_to_obtain[i,:,idx[3]])
-                        condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]))
+    #             if temp=='neg_inf':
+    #                 i_mut=0
+    #             else:
+    #                 print(f"{argsorts[0]=}")
+    #                 #i_mut=self.rng.choice(argsorts, p=boltz) #ValueError: a must be 1-dimensional
+    #                 #chosen_index=self.rng.choice(np.arange(len(argsorts)), p=boltz)
+    #                 #i_mut=argsorts[chosen_index]
+    #                 i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz)
+    #             accepted=0
+    #             while accepted<mutation_numbers:
+    #                 idx=argsorts[i_mut] #hessian indexes corresponding to greatest hessian (i_mut=0), second greatest (i_mut=1), ...
+    #                 prev_ind1=np.argmax(to_mutate[i,:,idx[1]]) #argmax does return the index for the 1
+    #                 prev_ind2=np.argmax(to_mutate[i,:,idx[3]])
+    #                 if (not_to_obtain==None).any:
+    #                     condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2]))
+    #                 else:
+    #                     print(f"{not_to_obtain=} {not_to_obtain.any==None=} {not_to_obtain.all==None=}")
+    #                     old_ind1=np.argmax(not_to_obtain[i,:,idx[1]])
+    #                     old_ind2=np.argmax(not_to_obtain[i,:,idx[3]])
+    #                     condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]))
                         
-                    #if not (prev_ind1==idx[0] or prev_ind2==idx[2]):
-                    #if not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]):
-                    if condition:
-                        to_mutate[i,:,idx[1]]=np.zeros(4) #to_mutate.shape: (100, 4, 39)
-                        to_mutate[i,idx[0],idx[1]]=1.
-                        to_mutate[i,:,idx[3]]=np.zeros(4)
-                        to_mutate[i,idx[2],idx[3]]=1.
-                        accepted+=1
-                    #else:
-                    #    #print(f"{i_mut=} {prev_ind1=} {idx[0]=} {prev_ind2=} {idx[2]=}")
-                    #    #exit()
-                    if temp == 'neg_inf':
-                        i_mut+=1
-                    else:
-                        i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz) #QUIQUIURG should you remove the previously explored i_mut??? or it doesnt change anything, since it will simply be rejected again?
+    #                 #if not (prev_ind1==idx[0] or prev_ind2==idx[2]):
+    #                 #if not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]):
+    #                 if condition:
+    #                     to_mutate[i,:,idx[1]]=np.zeros(4) #to_mutate.shape: (100, 4, 39)
+    #                     to_mutate[i,idx[0],idx[1]]=1.
+    #                     to_mutate[i,:,idx[3]]=np.zeros(4)
+    #                     to_mutate[i,idx[2],idx[3]]=1.
+    #                     accepted+=1
+    #                 #else:
+    #                 #    #print(f"{i_mut=} {prev_ind1=} {idx[0]=} {prev_ind2=} {idx[2]=}")
+    #                 #    #exit()
+    #                 if temp == 'neg_inf':
+    #                     i_mut+=1
+    #                 else:
+    #                     i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz) #QUIQUIURG should you remove the previously explored i_mut??? or it doesnt change anything, since it will simply be rejected again?
 
-                for_verif=(np.not_equal(to_optimize[i], to_mutate[i])).sum(axis=1).sum()
-                verif = for_verif==4*mutation_numbers
-                assert verif,'Mutation numbers are incorrect: %s'%str(i)+' '+str(np.not_equal(to_optimize[i], to_mutate[i]))+' '+str(for_verif)
-            #else:
-            #    print("ERROR: temp!=neg_inf not implemented yet.")
-            #    exit()
-            [m.zero_grad() for m in ranker.Predictive_Models] #QUIQUIURG is this necessary here?
-        return(to_mutate)
-    #""
-    def hessian_one_step_2backprop(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='y'):
-    #def hessian_one_step_2backprop(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='unc'):
+    #             for_verif=(np.not_equal(to_optimize[i], to_mutate[i])).sum(axis=1).sum()
+    #             verif = for_verif==4*mutation_numbers
+    #             assert verif,'Mutation numbers are incorrect: %s'%str(i)+' '+str(np.not_equal(to_optimize[i], to_mutate[i]))+' '+str(for_verif)
+    #         #else:
+    #         #    print("ERROR: temp!=neg_inf not implemented yet.")
+    #         #    exit()
+    #         [m.zero_grad() for m in ranker.Predictive_Models] #QUIQUIURG is this necessary here?
+    #     return(to_mutate)
+    # #""
+    # def hessian_one_step_2backprop(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='y'):
+    # #def hessian_one_step_2backprop(self, to_optimize, not_to_obtain, mutation_numbers, ranker, temp, to_backprop='unc'):
 
-        # Copy array
-        to_mutate = np.array(to_optimize)
+    #     # Copy array
+    #     to_mutate = np.array(to_optimize)
         
-        seqs, nts, pos =  to_mutate.shape
-        batch_hessians=[]
-        [m.zero_grad() for m in ranker.Predictive_Models]
+    #     seqs, nts, pos =  to_mutate.shape
+    #     batch_hessians=[]
+    #     [m.zero_grad() for m in ranker.Predictive_Models]
         
-        """ test with quick_proposer.py """
+    #     """ test with quick_proposer.py """
 
-        for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
-            x = torch.tensor(batch).float().requires_grad_()
-            #print(f"{x.shape=}")
-            x.retain_grad()
+    #     for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
+    #         x = torch.tensor(batch).float().requires_grad_()
+    #         #print(f"{x.shape=}")
+    #         x.retain_grad()
 
-            unc_all, preds_av = ranker.calculate_desiderata(x, keep_grads = True)
-            if to_backprop=='y':
-                preds_av.mean().backward(create_graph=True) #QUIQUIURG preds_av should be the right thing, even after a quick look into calculate_desiderata, but would better double check
-            elif to_backprop=='unc':
-                unc_all.mean().backward(create_graph=True) # The mean acts over the batch as well, but since the partial derivative of a sum y = x1 + x2 + ... wrt x1 considers x2 etc as constants, this is not a problem
+    #         unc_all, preds_av = ranker.calculate_desiderata(x, keep_grads = True)
+    #         if to_backprop=='y':
+    #             preds_av.mean().backward(create_graph=True) #QUIQUIURG preds_av should be the right thing, even after a quick look into calculate_desiderata, but would better double check
+    #         elif to_backprop=='unc':
+    #             unc_all.mean().backward(create_graph=True) # The mean acts over the batch as well, but since the partial derivative of a sum y = x1 + x2 + ... wrt x1 considers x2 etc as constants, this is not a problem
             
-            sail = x.grad # sail.shape=torch.Size([batch_size, 4, L])
+    #         sail = x.grad # sail.shape=torch.Size([batch_size, 4, L])
 
-            print(f"{sail.shape=}")
-            print("AC: cannot reduce sail to sail.mean or anything: would have to implement a for loop, or maybe even a for loop over a dataloader. But I am not sure if this reintroduces the problem of batches (nor if I can skip multidim_argsort which is inherently non-batchable)")
+    #         print(f"{sail.shape=}")
+    #         print("AC: cannot reduce sail to sail.mean or anything: would have to implement a for loop, or maybe even a for loop over a dataloader. But I am not sure if this reintroduces the problem of batches (nor if I can skip multidim_argsort which is inherently non-batchable)")
 
-            ##hess=np.zeros((sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]))
-            ##for nt in range(sail.shape[1]):
-            ##    for l in range(sail.shape[2]):
-            ##        x.grad.data.zero_() # If we do not release the 1-order gradient before calculating the 2-oder derivative, the result will be the addition between the 1-order derivative and the 2-oder derivative. 
-            ##        sail[:,nt,l].backward()
-            ##        hess[:,nt,l] = x.grad.data.cpu().numpy()
-            ##        print("HERE",hess.shape)
-            ##        [m.zero_grad() for m in ranker.Predictive_Models]
+    #         ##hess=np.zeros((sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]))
+    #         ##for nt in range(sail.shape[1]):
+    #         ##    for l in range(sail.shape[2]):
+    #         ##        x.grad.data.zero_() # If we do not release the 1-order gradient before calculating the 2-oder derivative, the result will be the addition between the 1-order derivative and the 2-oder derivative. 
+    #         ##        sail[:,nt,l].backward()
+    #         ##        hess[:,nt,l] = x.grad.data.cpu().numpy()
+    #         ##        print("HERE",hess.shape)
+    #         ##        [m.zero_grad() for m in ranker.Predictive_Models]
             
-            #x.grad.data.zero_()
-            ##sail.view(sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]).mean().backward()
-            ##sail.view(sail.shape[0],sail.shape[1]*sail.shape[2]).mean().backward()
-            ##hess = x.grad #.data
-            ##print(f"pre: {hess.shape=}")
-            ##hess=hess.view(sail.shape[0],sail.shape[1],sail.shape[2],sail.shape[1],sail.shape[2])
-            ##print(f"post: {hess.shape=}")
-            ##hess=hess.cpu().numpy()
+    #         #x.grad.data.zero_()
+    #         ##sail.view(sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]).mean().backward()
+    #         ##sail.view(sail.shape[0],sail.shape[1]*sail.shape[2]).mean().backward()
+    #         ##hess = x.grad #.data
+    #         ##print(f"pre: {hess.shape=}")
+    #         ##hess=hess.view(sail.shape[0],sail.shape[1],sail.shape[2],sail.shape[1],sail.shape[2])
+    #         ##print(f"post: {hess.shape=}")
+    #         ##hess=hess.cpu().numpy()
             
-            """ last chat with Jack: it should be batchable if the mean is taken over batches only, which can be done by flattening to batch, 4L, 4L"""
-            hess=torch.zeros((sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]))
-            sail1=sail.view(sail.shape[0],sail.shape[1]*sail.shape[2])
-            #print(f"{sail.grad=}")
-            for i_s in range(sail1.shape[1]):
-                x.grad.data.zero_()
-                sail1[i_s].mean().backward()
-                grd=x.grad.data.view(sail.shape[0],sail.shape[1]*sail.shape[2]) #.cpu().numpy()
-                hess[:,i_s,:]=grd
-                hess[:,:,i_s]=grd
-                """ LAST: need to find a way to save first backprop but not second. 
-                - Maybe by doing it within a def??? 
-                - Or maybe by using some [:,] for considering the whole batch at once?"""
-                exit()
-            hess=hess.view(sail.shape[0],sail.shape[1],sail.shape[2],sail.shape[1],sail.shape[2]).cpu().numpy()
-            [m.zero_grad() for m in ranker.Predictive_Models]
-            batch_hessians.append(hess)
-            exit()
+    #         """ last chat with Jack: it should be batchable if the mean is taken over batches only, which can be done by flattening to batch, 4L, 4L"""
+    #         hess=torch.zeros((sail.shape[0],sail.shape[1]*sail.shape[2],sail.shape[1]*sail.shape[2]))
+    #         sail1=sail.view(sail.shape[0],sail.shape[1]*sail.shape[2])
+    #         #print(f"{sail.grad=}")
+    #         for i_s in range(sail1.shape[1]):
+    #             x.grad.data.zero_()
+    #             sail1[i_s].mean().backward()
+    #             grd=x.grad.data.view(sail.shape[0],sail.shape[1]*sail.shape[2]) #.cpu().numpy()
+    #             hess[:,i_s,:]=grd
+    #             hess[:,:,i_s]=grd
+    #             """ LAST: need to find a way to save first backprop but not second. 
+    #             - Maybe by doing it within a def??? 
+    #             - Or maybe by using some [:,] for considering the whole batch at once?"""
+    #             exit()
+    #         hess=hess.view(sail.shape[0],sail.shape[1],sail.shape[2],sail.shape[1],sail.shape[2]).cpu().numpy()
+    #         [m.zero_grad() for m in ranker.Predictive_Models]
+    #         batch_hessians.append(hess)
+    #         exit()
 
-        # unc_all = np.concatenate(batch_uncs)
-        hessian = np.concatenate(batch_hessians)
-        if np.sum(hessian)==0.0:
-            print("ERROR: hessian resulting in only-zeros.")
-            exit()
+    #     # unc_all = np.concatenate(batch_uncs)
+    #     hessian = np.concatenate(batch_hessians)
+    #     if np.sum(hessian)==0.0:
+    #         print("ERROR: hessian resulting in only-zeros.")
+    #         exit()
 
-        #print('unc_sail (concated): ',unc_sail)
+    #     #print('unc_sail (concated): ',unc_sail)
 
-        # HHHH
-        exit()
-        if temp == 'neg_inf':
+    #     # HHHH
+    #     exit()
+    #     if temp == 'neg_inf':
             
-            # make WT saliencies minimal to stop selection
-            cut = np.array(hessian)
-            cut[to_mutate.astype(bool)] = cut.min()-1
+    #         # make WT saliencies minimal to stop selection
+    #         cut = np.array(hessian)
+    #         cut[to_mutate.astype(bool)] = cut.min()-1
             
-            # identify the maximal nucleotide and position combos
-            max_nts = cut.argmax(axis=1, keepdims=False)
-            i, j = np.indices((cut.shape[0],cut.shape[2]))
-            parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
+    #         # identify the maximal nucleotide and position combos
+    #         max_nts = cut.argmax(axis=1, keepdims=False)
+    #         i, j = np.indices((cut.shape[0],cut.shape[2]))
+    #         parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
             
-            #mutate the array
-            to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
-            to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
+    #         #mutate the array
+    #         to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
+    #         to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
 
-        """
-        if temp == 'neg_inf':
+    #     """
+    #     if temp == 'neg_inf':
             
-            # make WT saliencies minimal to stop selection
-            cut = np.array(unc_sail)
-            cut[to_mutate.astype(bool)] = cut.min()-1
+    #         # make WT saliencies minimal to stop selection
+    #         cut = np.array(unc_sail)
+    #         cut[to_mutate.astype(bool)] = cut.min()-1
             
-            # identify the maximal nucleotide and position combos
-            max_nts = cut.argmax(axis=1, keepdims=False)
-            i, j = np.indices((cut.shape[0],cut.shape[2]))
-            parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
+    #         # identify the maximal nucleotide and position combos
+    #         max_nts = cut.argmax(axis=1, keepdims=False)
+    #         i, j = np.indices((cut.shape[0],cut.shape[2]))
+    #         parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
             
-            #mutate the array
-            to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
-            to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
-        """
+    #         #mutate the array
+    #         to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
+    #         to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
+    #     """
 
-        """
-        for i in range(seqs):
+    #     """
+    #     for i in range(seqs):
         
-            x = to_mutate[i]
-            x = torch.tensor(x).unsqueeze(0).float().requires_grad_()
+    #         x = to_mutate[i]
+    #         x = torch.tensor(x).unsqueeze(0).float().requires_grad_()
 
-            x.retain_grad()
+    #         x.retain_grad()
             
-            if to_backprop=='y':
-                hess=torch.autograd.functional.hessian(ranker.Predictive_Models[0].predict_custom,x[0].unsqueeze(0)) #QUIQUIURG average over all Predictive Models #QUIQUISOLVED? torch.autograd.functional.hessian can in principle have create_graph but shouldnt be necessary unless for third order derivative
-            elif to_backprop=='unc':
-                hess=torch.autograd.functional.hessian(ranker.calculate_desiderata_4Hess,x[0].unsqueeze(0))
+    #         if to_backprop=='y':
+    #             hess=torch.autograd.functional.hessian(ranker.Predictive_Models[0].predict_custom,x[0].unsqueeze(0)) #QUIQUIURG average over all Predictive Models #QUIQUISOLVED? torch.autograd.functional.hessian can in principle have create_graph but shouldnt be necessary unless for third order derivative
+    #         elif to_backprop=='unc':
+    #             hess=torch.autograd.functional.hessian(ranker.calculate_desiderata_4Hess,x[0].unsqueeze(0))
 
-            [m.zero_grad() for m in ranker.Predictive_Models]
+    #         [m.zero_grad() for m in ranker.Predictive_Models]
 
-            batch_hessians.append(hess)
+    #         batch_hessians.append(hess)
 
-            #if temp == 'neg_inf':
-            for __ in ['dummy']: #QUIQUINONURG
+    #         #if temp == 'neg_inf':
+    #         for __ in ['dummy']: #QUIQUINONURG
 
-                def multidim_argsort_hess(hess, temperature=1):
-                    flat=[]
-                    indexes=[]
-                    boltz=[]
-                    for i0 in range(hess.shape[0]):
-                        for i1 in range(hess.shape[1]):
-                            for i2 in range(hess.shape[2]):
-                                for i3 in range(hess.shape[3]):
-                                    if not(i0==i2 or i1==i3): # otherwise the pair of index couples indicates the same nt to mutate
-                                        flat.append(hess[i0,i1,i2,i3].item())
-                                        indexes.append([i0,i1,i2,i3])
-                                        if temperature=='neg_inf':
-                                            #print("NEGING!!")
-                                            boltz.append(0.0) # dummy
+    #             def multidim_argsort_hess(hess, temperature=1):
+    #                 flat=[]
+    #                 indexes=[]
+    #                 boltz=[]
+    #                 for i0 in range(hess.shape[0]):
+    #                     for i1 in range(hess.shape[1]):
+    #                         for i2 in range(hess.shape[2]):
+    #                             for i3 in range(hess.shape[3]):
+    #                                 if not(i0==i2 or i1==i3): # otherwise the pair of index couples indicates the same nt to mutate
+    #                                     flat.append(hess[i0,i1,i2,i3].item())
+    #                                     indexes.append([i0,i1,i2,i3])
+    #                                     if temperature=='neg_inf':
+    #                                         #print("NEGING!!")
+    #                                         boltz.append(0.0) # dummy
 
-                                        else:
-                                            boltz.append(np.exp(-hess[i0,i1,i2,i3].item()/temperature))
-                    boltz=np.array(boltz)
-                    if temperature!='neg_inf':
-                        boltz/=np.sum(boltz, axis=0)
-                    order=np.argsort(flat)[::-1]
-                    #print(f"{order[0:10]=}")
-                    #print(f"{flat[0:10]=}")
-                    #print(f"{boltz[0:10]=}")
-                    #print(f"{len(order)=}")
-                    #print(f"{len(flat)=}")
-                    indexes_ordered=np.array(indexes)[order]
-                    flat_ordered=np.array(flat)[order]
-                    #flat_ordered=flat[0:10]
-                    #flat_ordered=flat[order[-1]]
-                    #print(f"{flat_ordered=}")
-                    boltz_ordered=boltz[order]
-                    #print(f"{boltz_ordered.shape=}")
-                    #exit()
-                    return indexes_ordered, flat_ordered, boltz_ordered #np.array(indexes)[order], flat[order], boltz[order]
+    #                                     else:
+    #                                         boltz.append(np.exp(-hess[i0,i1,i2,i3].item()/temperature))
+    #                 boltz=np.array(boltz)
+    #                 if temperature!='neg_inf':
+    #                     boltz/=np.sum(boltz, axis=0)
+    #                 order=np.argsort(flat)[::-1]
+    #                 #print(f"{order[0:10]=}")
+    #                 #print(f"{flat[0:10]=}")
+    #                 #print(f"{boltz[0:10]=}")
+    #                 #print(f"{len(order)=}")
+    #                 #print(f"{len(flat)=}")
+    #                 indexes_ordered=np.array(indexes)[order]
+    #                 flat_ordered=np.array(flat)[order]
+    #                 #flat_ordered=flat[0:10]
+    #                 #flat_ordered=flat[order[-1]]
+    #                 #print(f"{flat_ordered=}")
+    #                 boltz_ordered=boltz[order]
+    #                 #print(f"{boltz_ordered.shape=}")
+    #                 #exit()
+    #                 return indexes_ordered, flat_ordered, boltz_ordered #np.array(indexes)[order], flat[order], boltz[order]
 
-                sq_hess=hess.squeeze(3).squeeze(0) # shape=(1, 4, 39, 1, 4, 39) -> (1, 4, 39, 4, 39)
-                argsorts,flat_hess,boltz=multidim_argsort_hess(sq_hess, temperature=temp)
+    #             sq_hess=hess.squeeze(3).squeeze(0) # shape=(1, 4, 39, 1, 4, 39) -> (1, 4, 39, 4, 39)
+    #             argsorts,flat_hess,boltz=multidim_argsort_hess(sq_hess, temperature=temp)
 
-                if temp=='neg_inf':
-                    i_mut=0
-                else:
-                    print(f"{argsorts[0]=}")
-                    #i_mut=self.rng.choice(argsorts, p=boltz) #ValueError: a must be 1-dimensional
-                    #chosen_index=self.rng.choice(np.arange(len(argsorts)), p=boltz)
-                    #i_mut=argsorts[chosen_index]
-                    i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz)
-                accepted=0
-                while accepted<mutation_numbers:
-                    idx=argsorts[i_mut] #hessian indexes corresponding to greatest hessian (i_mut=0), second greatest (i_mut=1), ...
-                    prev_ind1=np.argmax(to_mutate[i,:,idx[1]]) #argmax does return the index for the 1
-                    prev_ind2=np.argmax(to_mutate[i,:,idx[3]])
-                    if (not_to_obtain==None).any:
-                        condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2]))
-                    else:
-                        print(f"{not_to_obtain=} {not_to_obtain.any==None=} {not_to_obtain.all==None=}")
-                        old_ind1=np.argmax(not_to_obtain[i,:,idx[1]])
-                        old_ind2=np.argmax(not_to_obtain[i,:,idx[3]])
-                        condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]))
+    #             if temp=='neg_inf':
+    #                 i_mut=0
+    #             else:
+    #                 print(f"{argsorts[0]=}")
+    #                 #i_mut=self.rng.choice(argsorts, p=boltz) #ValueError: a must be 1-dimensional
+    #                 #chosen_index=self.rng.choice(np.arange(len(argsorts)), p=boltz)
+    #                 #i_mut=argsorts[chosen_index]
+    #                 i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz)
+    #             accepted=0
+    #             while accepted<mutation_numbers:
+    #                 idx=argsorts[i_mut] #hessian indexes corresponding to greatest hessian (i_mut=0), second greatest (i_mut=1), ...
+    #                 prev_ind1=np.argmax(to_mutate[i,:,idx[1]]) #argmax does return the index for the 1
+    #                 prev_ind2=np.argmax(to_mutate[i,:,idx[3]])
+    #                 if (not_to_obtain==None).any:
+    #                     condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2]))
+    #                 else:
+    #                     print(f"{not_to_obtain=} {not_to_obtain.any==None=} {not_to_obtain.all==None=}")
+    #                     old_ind1=np.argmax(not_to_obtain[i,:,idx[1]])
+    #                     old_ind2=np.argmax(not_to_obtain[i,:,idx[3]])
+    #                     condition=(not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]))
                         
-                    #if not (prev_ind1==idx[0] or prev_ind2==idx[2]):
-                    #if not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]):
-                    if condition:
-                        to_mutate[i,:,idx[1]]=np.zeros(4) #to_mutate.shape: (100, 4, 39)
-                        to_mutate[i,idx[0],idx[1]]=1.
-                        to_mutate[i,:,idx[3]]=np.zeros(4)
-                        to_mutate[i,idx[2],idx[3]]=1.
-                        accepted+=1
-                    #else:
-                    #    #print(f"{i_mut=} {prev_ind1=} {idx[0]=} {prev_ind2=} {idx[2]=}")
-                    #    #exit()
-                    if temp == 'neg_inf':
-                        i_mut+=1
-                    else:
-                        i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz) #QUIQUIURG should you remove the previously explored i_mut??? or it doesnt change anything, since it will simply be rejected again?
+    #                 #if not (prev_ind1==idx[0] or prev_ind2==idx[2]):
+    #                 #if not (prev_ind1==idx[0] or prev_ind2==idx[2] or old_ind1==idx[0] or old_ind2==idx[2]):
+    #                 if condition:
+    #                     to_mutate[i,:,idx[1]]=np.zeros(4) #to_mutate.shape: (100, 4, 39)
+    #                     to_mutate[i,idx[0],idx[1]]=1.
+    #                     to_mutate[i,:,idx[3]]=np.zeros(4)
+    #                     to_mutate[i,idx[2],idx[3]]=1.
+    #                     accepted+=1
+    #                 #else:
+    #                 #    #print(f"{i_mut=} {prev_ind1=} {idx[0]=} {prev_ind2=} {idx[2]=}")
+    #                 #    #exit()
+    #                 if temp == 'neg_inf':
+    #                     i_mut+=1
+    #                 else:
+    #                     i_mut=self.rng.choice(np.arange(len(argsorts)), p=boltz) #QUIQUIURG should you remove the previously explored i_mut??? or it doesnt change anything, since it will simply be rejected again?
 
-                for_verif=(np.not_equal(to_optimize[i], to_mutate[i])).sum(axis=1).sum()
-                verif = for_verif==4*mutation_numbers
-                assert verif,'Mutation numbers are incorrect: %s'%str(i)+' '+str(np.not_equal(to_optimize[i], to_mutate[i]))+' '+str(for_verif)
-            #else:
-            #    print("ERROR: temp!=neg_inf not implemented yet.")
-            #    exit()
-            [m.zero_grad() for m in ranker.Predictive_Models] #QUIQUIURG is this necessary here?
-        return(to_mutate)
-        """
+    #             for_verif=(np.not_equal(to_optimize[i], to_mutate[i])).sum(axis=1).sum()
+    #             verif = for_verif==4*mutation_numbers
+    #             assert verif,'Mutation numbers are incorrect: %s'%str(i)+' '+str(np.not_equal(to_optimize[i], to_mutate[i]))+' '+str(for_verif)
+    #         #else:
+    #         #    print("ERROR: temp!=neg_inf not implemented yet.")
+    #         #    exit()
+    #         [m.zero_grad() for m in ranker.Predictive_Models] #QUIQUIURG is this necessary here?
+    #     return(to_mutate)
+    #     """
         
-    def mutate_by_hessian(self, n_to_make, x_source, x_previous,
-                          cycles, mutations_per, ranker, temp, decay=None): #, to_backprop='y'):
-        """
-        if self.track_time:
-            start_time = time()
-        """
+    # def mutate_by_hessian(self, n_to_make, x_source, x_previous,
+    #                       cycles, mutations_per, ranker, temp, decay=None): #, to_backprop='y'):
+    #     """
+    #     if self.track_time:
+    #         start_time = time()
+    #     """
             
-        originals = self.select_from_source(n_to_make, x_source, replace = False)
-        if x_previous!=None:
-            previous = self.select_from_source(n_to_make, x_previous, replace = False)
-        else:
-            previous = None
-        """
-        if self.track_uncertanties:
-            des = ranker.calculate_desiderata(originals).detach().cpu().numpy()
+    #     originals = self.select_from_source(n_to_make, x_source, replace = False)
+    #     if x_previous!=None:
+    #         previous = self.select_from_source(n_to_make, x_previous, replace = False)
+    #     else:
+    #         previous = None
+    #     """
+    #     if self.track_uncertanties:
+    #         des = ranker.calculate_desiderata(originals).detach().cpu().numpy()
 
-            tmp = self.tracker.get('ave_unc', [])
-            tmp.append(des.mean())
-            self.tracker['ave_unc'] = tmp
+    #         tmp = self.tracker.get('ave_unc', [])
+    #         tmp.append(des.mean())
+    #         self.tracker['ave_unc'] = tmp
 
-            tmp = self.tracker.get('std_unc', [])
-            tmp.append(des.std())
-            self.tracker['std_unc'] = tmp
-        """
+    #         tmp = self.tracker.get('std_unc', [])
+    #         tmp.append(des.std())
+    #         self.tracker['std_unc'] = tmp
+    #     """
             
-        """
-        if self.track_batches:
+    #     """
+    #     if self.track_batches:
 
-            tmp = self.tracker.get('batch', [])
-            tmp.append(originals)
-            self.tracker['batch'] = tmp
-        """
+    #         tmp = self.tracker.get('batch', [])
+    #         tmp.append(originals)
+    #         self.tracker['batch'] = tmp
+    #     """
         
-        """
-        if self.track_hamming:
-            tmp = self.tracker.get('ham', [])
-            tmp.append(self.get_hamming(originals))
-            self.tracker['ham'] = tmp
-        """
+    #     """
+    #     if self.track_hamming:
+    #         tmp = self.tracker.get('ham', [])
+    #         tmp.append(self.get_hamming(originals))
+    #         self.tracker['ham'] = tmp
+    #     """
             
-        to_mutate = np.array(originals)
-        #to_mutate = np.array(originals.detach().cpu().numpy())
-        if previous!=None: 
-            not_to_obtain = np.array(previous)
-        else:
-            #not_to_obtain=np.array([None]*len(to_mutate))
-            not_to_obtain=np.array([None]) 
-            #not_to_obtain=np.array([None]*len(to_mutate[0][0]))
+    #     to_mutate = np.array(originals)
+    #     #to_mutate = np.array(originals.detach().cpu().numpy())
+    #     if previous!=None: 
+    #         not_to_obtain = np.array(previous)
+    #     else:
+    #         #not_to_obtain=np.array([None]*len(to_mutate))
+    #         not_to_obtain=np.array([None]) 
+    #         #not_to_obtain=np.array([None]*len(to_mutate[0][0]))
 
-        for c in range(cycles):
-            if (decay is None) or (temp == 'neg_inf'):
-                t = temp
-            elif cycles>1:
-                t = decay + (temp-decay)*((((cycles-1)-c)/(cycles-1))**2) # calculate temperature for accepting mutations
-            else:
-                t = decay
+    #     for c in range(cycles):
+    #         if (decay is None) or (temp == 'neg_inf'):
+    #             t = temp
+    #         elif cycles>1:
+    #             t = decay + (temp-decay)*((((cycles-1)-c)/(cycles-1))**2) # calculate temperature for accepting mutations
+    #         else:
+    #             t = decay
 
-            if self.generation_method=='hessian':
-                to_backprop='unc'
-            elif self.generation_method=='hessian_y':
-                to_backprop='y'
+    #         if self.generation_method=='hessian':
+    #             to_backprop='unc'
+    #         elif self.generation_method=='hessian_y':
+    #             to_backprop='y'
 
-            #to_mutate = self.hessian_one_step(to_mutate, mutations_per, ranker, t)
-            to_mutate = self.hessian_one_step(to_mutate, not_to_obtain, mutations_per, ranker, t, to_backprop=to_backprop)
-            #to_mutate = self.hessian_one_step_2backprop(to_mutate, not_to_obtain, mutations_per, ranker, t, to_backprop=to_backprop)
+    #         #to_mutate = self.hessian_one_step(to_mutate, mutations_per, ranker, t)
+    #         to_mutate = self.hessian_one_step(to_mutate, not_to_obtain, mutations_per, ranker, t, to_backprop=to_backprop)
+    #         #to_mutate = self.hessian_one_step_2backprop(to_mutate, not_to_obtain, mutations_per, ranker, t, to_backprop=to_backprop)
             
-            """
-            if self.track_time:
-                end_time = time()
-                tmp = self.tracker.get('time', [])
-                tmp.append(end_time-start_time)
-                self.tracker['time'] = tmp
-            """
+    #         """
+    #         if self.track_time:
+    #             end_time = time()
+    #             tmp = self.tracker.get('time', [])
+    #             tmp.append(end_time-start_time)
+    #             self.tracker['time'] = tmp
+    #         """
 
-            """
-            if self.track_uncertanties:
-                des = ranker.calculate_desiderata(to_mutate).detach().cpu().numpy()
+    #         """
+    #         if self.track_uncertanties:
+    #             des = ranker.calculate_desiderata(to_mutate).detach().cpu().numpy()
 
-                tmp = self.tracker.get('ave_unc', [])
-                tmp.append(des.mean())
-                self.tracker['ave_unc'] = tmp
+    #             tmp = self.tracker.get('ave_unc', [])
+    #             tmp.append(des.mean())
+    #             self.tracker['ave_unc'] = tmp
 
-                tmp = self.tracker.get('std_unc', [])
-                tmp.append(des.std())
-                self.tracker['std_unc'] = tmp
-            """
+    #             tmp = self.tracker.get('std_unc', [])
+    #             tmp.append(des.std())
+    #             self.tracker['std_unc'] = tmp
+    #         """
 
-            """
-            if self.track_batches:
+    #         """
+    #         if self.track_batches:
                 
-                tmp = self.tracker.get('batch', [])
-                tmp.append(to_mutate)
-                self.tracker['batch'] = tmp
-            """
+    #             tmp = self.tracker.get('batch', [])
+    #             tmp.append(to_mutate)
+    #             self.tracker['batch'] = tmp
+    #         """
 
-            """
-            if self.track_hamming:
-                tmp = self.tracker.get('ham', [])
-                tmp.append(self.get_hamming(to_mutate))
-                self.tracker['ham'] = tmp
-            """
+    #         """
+    #         if self.track_hamming:
+    #             tmp = self.tracker.get('ham', [])
+    #             tmp.append(self.get_hamming(to_mutate))
+    #             self.tracker['ham'] = tmp
+    #         """
                 
-            """
-            if self.track_time or self.track_uncertanties or self.track_batches or self.track_hamming:
-                with open(self.track_pref+'.pckl', 'wb') as f:
-                    pickle.dump(self.tracker, f)
-            """
+    #         """
+    #         if self.track_time or self.track_uncertanties or self.track_batches or self.track_hamming:
+    #             with open(self.track_pref+'.pckl', 'wb') as f:
+    #                 pickle.dump(self.tracker, f)
+    #         """
                 
-        return(torch.Tensor(to_mutate))      
+    #     return(torch.Tensor(to_mutate))      
      
-    def saliencyfirstlayer_one_step(self, to_optimize, mutation_numbers, ranker, temp):
+#     def saliencyfirstlayer_one_step(self, to_optimize, mutation_numbers, ranker, temp):
         
-        # Copy array
-        to_mutate = np.array(to_optimize)
+#         # Copy array
+#         to_mutate = np.array(to_optimize)
         
-        seqs, nts, pos =  to_mutate.shape
-        # batch_uncs = []
-        batch_sails = []
-        [m.zero_grad() for m in ranker.Predictive_Models]
-        for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
-            x = torch.tensor(batch).float().requires_grad_()
-#             print('x: ',x)
-            x.retain_grad()
-#             print('x: ',x)
+#         seqs, nts, pos =  to_mutate.shape
+#         # batch_uncs = []
+#         batch_sails = []
+#         [m.zero_grad() for m in ranker.Predictive_Models]
+#         for batch in np.split(to_mutate, ceil(seqs/ranker.batch_size)):
+#             x = torch.tensor(batch).float().requires_grad_()
+# #             print('x: ',x)
+#             x.retain_grad()
+# #             print('x: ',x)
 
-            unc_all, preds_av = ranker.calculate_desiderata(x, keep_grads = True)
-            #print('unc_all: ',unc_all)
-            # batch_uncs.append(unc_all.detach().cpu().numpy())
-            unc_all.mean().backward()
+#             unc_all, preds_av = ranker.calculate_desiderata(x, keep_grads = True)
+#             #print('unc_all: ',unc_all)
+#             # batch_uncs.append(unc_all.detach().cpu().numpy())
+#             unc_all.mean().backward()
 
-            if ranker.uncertainty_method!='sigma_deep_ensemble':
-                unc_sail = ranker.Predictive_Models[0].model.first_layer_grad.detach().cpu().numpy() # AC: must be a self of the Model
-            else:
-                print("ERROR: not implemented yet")
-                exit()
+#             if ranker.uncertainty_method!='sigma_deep_ensemble':
+#                 unc_sail = ranker.Predictive_Models[0].model.first_layer_grad.detach().cpu().numpy() # AC: must be a self of the Model
+#             else:
+#                 print("ERROR: not implemented yet")
+#                 exit()
 
 
-            #unc_sail = x.grad.data.cpu().numpy()
-#             print('unc_sail: ',unc_sail)
-            batch_sails.append(unc_sail)
-            [m.zero_grad() for m in ranker.Predictive_Models]
+#             #unc_sail = x.grad.data.cpu().numpy()
+# #             print('unc_sail: ',unc_sail)
+#             batch_sails.append(unc_sail)
+#             [m.zero_grad() for m in ranker.Predictive_Models]
 
-        # unc_all = np.concatenate(batch_uncs)
-        unc_sail = np.concatenate(batch_sails)
-#         print('unc_sail (concated): ',unc_sail)
+#         # unc_all = np.concatenate(batch_uncs)
+#         unc_sail = np.concatenate(batch_sails)
+# #         print('unc_sail (concated): ',unc_sail)
         
         
-        """
-        if temp == 'neg_inf':
+#         """
+#         if temp == 'neg_inf':
             
-            # make WT saliencies minimal to stop selection
-            cut = np.array(unc_sail)
-            cut[to_mutate.astype(bool)] = cut.min()-1
+#             # make WT saliencies minimal to stop selection
+#             cut = np.array(unc_sail)
+#             cut[to_mutate.astype(bool)] = cut.min()-1
             
-            # identify the maximal nucleotide and position combos
-            max_nts = cut.argmax(axis=1, keepdims=False)
-            i, j = np.indices((cut.shape[0],cut.shape[2]))
-            parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
+#             # identify the maximal nucleotide and position combos
+#             max_nts = cut.argmax(axis=1, keepdims=False)
+#             i, j = np.indices((cut.shape[0],cut.shape[2]))
+#             parted_poses = cut[i,max_nts, j].argpartition(-mutation_numbers,axis=1,)
             
-            #mutate the array
-            to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
-            to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
+#             #mutate the array
+#             to_mutate[i[:,-mutation_numbers:], :, parted_poses[:,-mutation_numbers:]] = 0
+#             to_mutate[i[:,-mutation_numbers:], max_nts[i,parted_poses][:,-mutation_numbers:], parted_poses[:,-mutation_numbers:]] = 1
                         
-        elif isinstance(temp, float) or isinstance(temp, int):
-            unc_sail = unc_sail.astype('float64')
-            old_seq_mask = to_mutate.astype(bool)
-            unc_sail[old_seq_mask] = 0 #QUIQUI stoping old sequences from messing up the scaling should probably fix this
+#         elif isinstance(temp, float) or isinstance(temp, int):
+#             unc_sail = unc_sail.astype('float64')
+#             old_seq_mask = to_mutate.astype(bool)
+#             unc_sail[old_seq_mask] = 0 #QUIQUI stoping old sequences from messing up the scaling should probably fix this
             
-            #QUIQUI This is a hacky solution to stop low numbers from all becoming zero in the np.exp should probably fix this
-            #This failes with more than one mutation. will trey psuedo flooring
-#             scale_thresh = np.log(1e-40)*temp
-#             mask = (unc_sail<=scale_thresh).all(axis=-1).all(axis=-1)
-#             mins = unc_sail[mask].min(axis=-1).min(axis=-1)
-#             unc_sail[mask] = unc_sail[mask]-(mins-scale_thresh)[:,None,None]
+#             #QUIQUI This is a hacky solution to stop low numbers from all becoming zero in the np.exp should probably fix this
+#             #This failes with more than one mutation. will trey psuedo flooring
+# #             scale_thresh = np.log(1e-40)*temp
+# #             mask = (unc_sail<=scale_thresh).all(axis=-1).all(axis=-1)
+# #             mins = unc_sail[mask].min(axis=-1).min(axis=-1)
+# #             unc_sail[mask] = unc_sail[mask]-(mins-scale_thresh)[:,None,None]
             
-            #QUIQUI This is a hacky solution to stop overflow errors in the np.exp should probably fix this
-            scale_thresh = np.log(1e+40)*temp            
-            mask = (unc_sail>=scale_thresh).any(axis=-1).any(axis=-1)
-            maxes = unc_sail[mask].max(axis=-1).max(axis=-1)
-            unc_sail[mask] = unc_sail[mask]-(maxes-scale_thresh)[:,None,None] 
+#             #QUIQUI This is a hacky solution to stop overflow errors in the np.exp should probably fix this
+#             scale_thresh = np.log(1e+40)*temp            
+#             mask = (unc_sail>=scale_thresh).any(axis=-1).any(axis=-1)
+#             maxes = unc_sail[mask].max(axis=-1).max(axis=-1)
+#             unc_sail[mask] = unc_sail[mask]-(maxes-scale_thresh)[:,None,None] 
                  
-            unc_sail[old_seq_mask] = -np.inf #QUIQUI setting old sequence probabilities to zero this is prob fine
-            ex = np.exp(unc_sail/temp)
-            ex = ex + 1e-10
-            ex[old_seq_mask] = 0
-#             ex = (ex*np.logical_not(to_mutate)).astype('float64')
-            probs = (ex/ex.sum(axis=1).sum(axis=1)[:,None,None])
-            badmask = np.isnan(probs).any(axis=-1).any(axis=-1)
+#             unc_sail[old_seq_mask] = -np.inf #QUIQUI setting old sequence probabilities to zero this is prob fine
+#             ex = np.exp(unc_sail/temp)
+#             ex = ex + 1e-10
+#             ex[old_seq_mask] = 0
+# #             ex = (ex*np.logical_not(to_mutate)).astype('float64')
+#             probs = (ex/ex.sum(axis=1).sum(axis=1)[:,None,None])
+#             badmask = np.isnan(probs).any(axis=-1).any(axis=-1)
 
-            pos_to_mut = np.stack([self.rng.choice(np.arange(probs.shape[2]), p=probs[i].sum(axis=0), size = mutation_numbers,replace=False) for i in range(probs.shape[0])])
-            i, j = np.indices(pos_to_mut.shape)
+#             pos_to_mut = np.stack([self.rng.choice(np.arange(probs.shape[2]), p=probs[i].sum(axis=0), size = mutation_numbers,replace=False) for i in range(probs.shape[0])])
+#             i, j = np.indices(pos_to_mut.shape)
 
-            pos_to_mut = pos_to_mut.flatten()
-            i = i.flatten()
+#             pos_to_mut = pos_to_mut.flatten()
+#             i = i.flatten()
 
-            to_mutate[i, :, pos_to_mut] = self.rng.multinomial(1, probs[i, :, pos_to_mut]/probs[i, :, pos_to_mut].sum(axis=1)[:,None])
+#             to_mutate[i, :, pos_to_mut] = self.rng.multinomial(1, probs[i, :, pos_to_mut]/probs[i, :, pos_to_mut].sum(axis=1)[:,None])
 
-        else:
-            assert False, "invalid temp"
-        """
-#         print((np.not_equal(to_optimize, to_mutate).sum(axis=1).sum(axis=1)))
-        test = (np.not_equal(to_optimize, to_mutate).sum(axis=1).sum(axis=1)==2*mutation_numbers)
-        #assert test.all(), 'Mutation numbers are incorect\n%s'%str(test)
-        exit()
-        return(to_mutate)
+#         else:
+#             assert False, "invalid temp"
+#         """
+# #         print((np.not_equal(to_optimize, to_mutate).sum(axis=1).sum(axis=1)))
+#         test = (np.not_equal(to_optimize, to_mutate).sum(axis=1).sum(axis=1)==2*mutation_numbers)
+#         #assert test.all(), 'Mutation numbers are incorect\n%s'%str(test)
+#         exit()
+#         return(to_mutate)
         
-    def mutate_by_saliencyfirstlayer(self, n_to_make, x_source, cycles, mutations_per, ranker, temp, decay=None ):
-        """
-        if self.track_time:
-            start_time = time()
-        """
+#     def mutate_by_saliencyfirstlayer(self, n_to_make, x_source, cycles, mutations_per, ranker, temp, decay=None ):
+#         """
+#         if self.track_time:
+#             start_time = time()
+#         """
 
-        originals = self.select_from_source(n_to_make, x_source, replace = False)
-        """
-        if self.track_uncertanties:
-            des = ranker.calculate_desiderata(originals).detach().cpu().numpy()
+#         originals = self.select_from_source(n_to_make, x_source, replace = False)
+#         """
+#         if self.track_uncertanties:
+#             des = ranker.calculate_desiderata(originals).detach().cpu().numpy()
 
-            tmp = self.tracker.get('ave_unc', [])
-            tmp.append(des.mean())
-            self.tracker['ave_unc'] = tmp
+#             tmp = self.tracker.get('ave_unc', [])
+#             tmp.append(des.mean())
+#             self.tracker['ave_unc'] = tmp
 
-            tmp = self.tracker.get('std_unc', [])
-            tmp.append(des.std())
-            self.tracker['std_unc'] = tmp
+#             tmp = self.tracker.get('std_unc', [])
+#             tmp.append(des.std())
+#             self.tracker['std_unc'] = tmp
 
-        if self.track_batches:
+#         if self.track_batches:
 
-            tmp = self.tracker.get('batch', [])
-            tmp.append(originals)
-            self.tracker['batch'] = tmp
+#             tmp = self.tracker.get('batch', [])
+#             tmp.append(originals)
+#             self.tracker['batch'] = tmp
 
-        if self.track_hamming:
-            tmp = self.tracker.get('ham', [])
-            tmp.append(self.get_hamming(originals))
-            self.tracker['ham'] = tmp
-        """
+#         if self.track_hamming:
+#             tmp = self.tracker.get('ham', [])
+#             tmp.append(self.get_hamming(originals))
+#             self.tracker['ham'] = tmp
+#         """
 
-        to_mutate = np.array(originals)
+#         to_mutate = np.array(originals)
         
-        for c in range(cycles):
-            if (decay is None) or (temp == 'neg_inf'):
-                t = temp
-            elif cycles>1:
-                t = decay + (temp-decay)*((((cycles-1)-c)/(cycles-1))**2) # calculate temperature for accepting mutations
-            else:
-                t = decay
+#         for c in range(cycles):
+#             if (decay is None) or (temp == 'neg_inf'):
+#                 t = temp
+#             elif cycles>1:
+#                 t = decay + (temp-decay)*((((cycles-1)-c)/(cycles-1))**2) # calculate temperature for accepting mutations
+#             else:
+#                 t = decay
                 
-            to_mutate = self.saliencyfirstlayer_one_step(to_mutate, mutations_per, ranker, t)
+#             to_mutate = self.saliencyfirstlayer_one_step(to_mutate, mutations_per, ranker, t)
 
-            """
-            if self.track_time:
-                end_time = time()
-                tmp = self.tracker.get('time', [])
-                tmp.append(end_time-start_time)
-                self.tracker['time'] = tmp
+#             """
+#             if self.track_time:
+#                 end_time = time()
+#                 tmp = self.tracker.get('time', [])
+#                 tmp.append(end_time-start_time)
+#                 self.tracker['time'] = tmp
 
-            if self.track_uncertanties:
-                des = ranker.calculate_desiderata(to_mutate).detach().cpu().numpy()
+#             if self.track_uncertanties:
+#                 des = ranker.calculate_desiderata(to_mutate).detach().cpu().numpy()
 
-                tmp = self.tracker.get('ave_unc', [])
-                tmp.append(des.mean())
-                self.tracker['ave_unc'] = tmp
+#                 tmp = self.tracker.get('ave_unc', [])
+#                 tmp.append(des.mean())
+#                 self.tracker['ave_unc'] = tmp
 
-                tmp = self.tracker.get('std_unc', [])
-                tmp.append(des.std())
-                self.tracker['std_unc'] = tmp
+#                 tmp = self.tracker.get('std_unc', [])
+#                 tmp.append(des.std())
+#                 self.tracker['std_unc'] = tmp
 
-            if self.track_batches:
+#             if self.track_batches:
                 
-                tmp = self.tracker.get('batch', [])
-                tmp.append(to_mutate)
-                self.tracker['batch'] = tmp
+#                 tmp = self.tracker.get('batch', [])
+#                 tmp.append(to_mutate)
+#                 self.tracker['batch'] = tmp
 
-            if self.track_hamming:
-                tmp = self.tracker.get('ham', [])
-                tmp.append(self.get_hamming(to_mutate))
-                self.tracker['ham'] = tmp
+#             if self.track_hamming:
+#                 tmp = self.tracker.get('ham', [])
+#                 tmp.append(self.get_hamming(to_mutate))
+#                 self.tracker['ham'] = tmp
 
-            if self.track_time or self.track_uncertanties or self.track_batches or self.track_hamming:
-                with open(self.track_pref+'.pckl', 'wb') as f:
-                    pickle.dump(self.tracker, f)
-            """
+#             if self.track_time or self.track_uncertanties or self.track_batches or self.track_hamming:
+#                 with open(self.track_pref+'.pckl', 'wb') as f:
+#                     pickle.dump(self.tracker, f)
+#             """
 
-        return(torch.Tensor(to_mutate))    
+#         return(torch.Tensor(to_mutate))    
 
 
 

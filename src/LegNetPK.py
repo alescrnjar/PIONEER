@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import loss_for_evidential
+#import loss_for_evidential
 
 class DataModule(pl.LightningDataModule):
     def __init__(self, x_train, y_train, x_valid, y_valid, x_test, y_test, batch_size=128):
@@ -264,18 +264,18 @@ class LegNetPK(nn.Module):
                                    nn.BatchNorm1d(out_ch * 2),
                                    activation(),
                                    nn.Linear(out_ch * 2, 1))
-        elif unc_control=='heteroscedastic':
-            self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
-                                      nn.Dropout(0.5), #AC
-                                   nn.BatchNorm1d(out_ch * 2),
-                                   activation(),
-                                   nn.Linear(out_ch * 2, 2))
-        elif unc_control=='evidential':
-            self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
-                                      nn.Dropout(0.5), #AC
-                                   nn.BatchNorm1d(out_ch * 2),
-                                   activation(),
-                                   loss_for_evidential.DenseNormalGamma(out_ch * 2, 1))
+        # elif unc_control=='heteroscedastic':
+        #     self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
+        #                               nn.Dropout(0.5), #AC
+        #                            nn.BatchNorm1d(out_ch * 2),
+        #                            activation(),
+        #                            nn.Linear(out_ch * 2, 2))
+        # elif unc_control=='evidential':
+        #     self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
+        #                               nn.Dropout(0.5), #AC
+        #                            nn.BatchNorm1d(out_ch * 2),
+        #                            activation(),
+        #                            loss_for_evidential.DenseNormalGamma(out_ch * 2, 1))
 
     def forward(self, x):
         x = self.stem(x)
