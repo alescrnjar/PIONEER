@@ -7,8 +7,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-#import loss_for_evidential
-
 class DataModule(pl.LightningDataModule):
     def __init__(self, x_train, y_train, x_valid, y_valid, x_test, y_test, batch_size=128):
         super().__init__()
@@ -31,9 +29,6 @@ class DataModule(pl.LightningDataModule):
     def test_dataloader(self):
         test_dataset = TensorDataset(self.x_test, self.y_test)
         return DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
-
-
-
 
 def initialize_weights(m):
     if isinstance(m, nn.Conv1d):
@@ -173,55 +168,9 @@ class LegNetPK(nn.Module):
                  pool_sizes=[2, 2, 2, 2],
                  resize_factor=4,
                  activation=nn.SiLU,
-
-                 ## human_legnet/models/example.cfg
-                 ##in_ch,
-                 ##stem_ch=64, 
-                 ##stem_ks=5,
-                 ##ef_ks=3, 
-                 ##ef_block_sizes=[80, 96, 112, 128],
-                 ##pool_sizes=[2, 2, 2, 2],
-                 ##resize_factor=4,
-                 ##activation=nn.SiLU,
-
                  unc_control='no',
-
                  ):
-        """
-        human_legnet/models/example.cfg
-        {
-    "stem_ch": 64,
-    "stem_ks": 5,
-    "ef_ks": 3,
-    "ef_block_sizes": [
-        80,
-        96,
-        112,
-        128
-    ],
-    "resize_factor": 4,
-    "pool_sizes": [
-        2,
-        2,
-        2,
-        2
-    ],
-    "reverse_augment": true,
-    "use_reverse_channel": false,
-    "use_shift": true,
-    "max_shift": null,
-    "max_lr": 0.01,
-    "weight_decay": 0.1,
-    "model_dir": "/projects/deepbeer/vikram_final//md_shift_reverse_noavg_noch/WTC11",
-    "data_path": "vikram/data/WTC11_clean_vikram_folds.tsv",
-    "epoch_num": 25,
-    "device": 0,
-    "seed": 777,
-    "train_batch_size": 1024,
-    "valid_batch_size": 1024,
-    "num_workers": 8
-}
-        """
+
         super().__init__()
         assert len(pool_sizes) == len(ef_block_sizes)
 
@@ -264,18 +213,6 @@ class LegNetPK(nn.Module):
                                    nn.BatchNorm1d(out_ch * 2),
                                    activation(),
                                    nn.Linear(out_ch * 2, 1))
-        # elif unc_control=='heteroscedastic':
-        #     self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
-        #                               nn.Dropout(0.5), #AC
-        #                            nn.BatchNorm1d(out_ch * 2),
-        #                            activation(),
-        #                            nn.Linear(out_ch * 2, 2))
-        # elif unc_control=='evidential':
-        #     self.head = nn.Sequential(nn.Linear(out_ch * 2, out_ch * 2),
-        #                               nn.Dropout(0.5), #AC
-        #                            nn.BatchNorm1d(out_ch * 2),
-        #                            activation(),
-        #                            loss_for_evidential.DenseNormalGamma(out_ch * 2, 1))
 
     def forward(self, x):
         x = self.stem(x)
@@ -284,6 +221,5 @@ class LegNetPK(nn.Module):
         x =  F.adaptive_avg_pool1d(x, 1)
         x = x.squeeze(-1)
         x = self.head(x)
-        #x = x.squeeze(-1) #AC orig
         return x
 
