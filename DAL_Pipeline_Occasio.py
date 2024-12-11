@@ -15,7 +15,6 @@ import torch.multiprocessing as mp
 from filelock import FileLock 
 from pool_gen import SequenceProposer
 
-import kmer_freq_KL
 import set_torch_tensors_test
 
 #External packages
