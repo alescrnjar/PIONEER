@@ -4,7 +4,6 @@ from captum.attr import Saliency
 from captum.attr import GradientShap
 import sys
 sys.path.append('../')
-import outflag_2_nickname
 import os
 import torch.utils.data
 import tqdm
