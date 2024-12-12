@@ -26,12 +26,12 @@ parser = argparse.ArgumentParser()
 # Chosen Model
 parser.add_argument('--chosen_model', default='DeepSTARR', type=str)
 parser.add_argument('--chosen_dataset', default='DeepSTARRdev', type=str)
-parser.add_argument('--nickname', default='R', type=str)
+parser.add_argument('--nickname', default='D', type=str)
 parser.add_argument('--chosen_oracle', default='PL_Oracle', type=str)
 parser.add_argument('--oracle_flag', default='same', type=str)
 
 # Input settings
-parser.add_argument('--outdir', default='../outputs_DALdna/', type=str) #'.'
+parser.add_argument('--outdir', default='../outputs_PIONEER/', type=str) #'.'
 parser.add_argument('--inpdir', default='./inputs/', type=str) 
 parser.add_argument('--initial_i_AL', default=0, type=int) 
 
@@ -54,15 +54,15 @@ parser.add_argument('--save_freq', default=1, type=int, help='Frequency for AL c
 parser.add_argument('--sigmadistr_freq', default=10, type=int, help='Frequency of plotting uncertainty distribution') #10
 
 # AL and Seq.Gen. settings
-parser.add_argument('--seq_method', default='Xy-from-ds', type=str, help="Method for proposed sequences generation. (options: Xy-from-ds: extract from dataset - random-0.15: 15 percent random mutagenesis - random-0.30: 30 percent random mutagenesis)") 
+parser.add_argument('--seq_method', default='saliency', type=str, help="Method for proposed sequences generation. (options: Xy-from-ds: extract from dataset - random-0.15: 15 percent random mutagenesis - random-0.30: 30 percent random mutagenesis)") 
 parser.add_argument('--AL_cycles', default=2, type=int, help="Number of D.A.L. cycles to perform") # 2 5 60 100
 parser.add_argument('--N_Active_Learning', default=1, type=int, help="Number of repetitions of D.A.L (e.g. to get errorbars over increase of PCC)")
 parser.add_argument('--incremental_training', default='retrain',type=str,help="0: No incremental training, 1: Incremental training will be performed.") #0 or 1
 parser.add_argument('--multiprocesses', default=0,type=int,help="0: No multiprocess training, 1: multiprocess training will be performed.") #0 or 1
 parser.add_argument('--how_many_new_batches_at_once', default=1,type=int,help='How many new batches to append at each D.A.L cycle')
-parser.add_argument('--generated_U',default='2560',type=str,help='The number of samples to make the new unlabelled U from which to extract the best batch.') # 1000 10000 dsrr:100000  #ANCHORED
-parser.add_argument('--pristine_N',default=2707,type=int, help="Number of sequences to start the training with") #0 100 2000 10000 100000 # 20000 # 600 #dsrr:20000
-parser.add_argument('--firstpristine',default=2707,type=int, help="Number of sequences to start the training with (upfront any D.A.L. cycle)") #0 100 2000 10000 100000 # 20000 # 600 #dsrr:20000
+parser.add_argument('--generated_U',default='20000',type=str,help='The number of samples to make the new unlabelled U from which to extract the best batch.') # 1000 10000 dsrr:100000  #ANCHORED
+parser.add_argument('--pristine_N',default=20000,type=int, help="Number of sequences to start the training with") #0 100 2000 10000 100000 # 20000 # 600 #dsrr:20000
+parser.add_argument('--firstpristine',default=20000,type=int, help="Number of sequences to start the training with (upfront any D.A.L. cycle)") #0 100 2000 10000 100000 # 20000 # 600 #dsrr:20000
 parser.add_argument('--N_Models', default=1, type=int, help="Number of models that will be trained (e.g. useful for Deep Ensemble uncertainty evaluation)") #"Number of repetitions for uncertainty evaluations (e.g. number of models within Deep Ensemble)") #5
 #
 parser.add_argument('--uncertainty_method', default='no', type=str, help="Choice of method for uncertainty evaluation (options: - Deep_Ensemble - MC_dropout)") 
@@ -73,7 +73,7 @@ parser.add_argument('--highpred_method', default='no',type=str)
 parser.add_argument('--highpred_weight', default=0.0, type=float)
 parser.add_argument('--sp_desideratum', default='no', type=str)
 parser.add_argument('--selection_first', default='no', type=str)
-parser.add_argument('--mutrate', default=0.25, type=float)
+parser.add_argument('--mutrate', default=0.05, type=float)
 #
 parser.add_argument('--pristine_method', default='ds', type=str, help="Should the pristine labels come from dataset (ds) or from oracle?")
 parser.add_argument('--jobseed', default=0, type=int, help="Random seed associated with multitask job scheduler.")
