@@ -1,10 +1,9 @@
 import torch
 import numpy as np
 import tqdm
-import nlist_sorting
 from matplotlib import pyplot as plt
 from scipy.stats import gumbel_r
-import differentiables_AC
+import differentiables_utils
 
 def model_positionwise_mean(logits, keepgrad = True):
     return(torch.mean(logits, dim=0))
@@ -39,32 +38,6 @@ def single_true(iterable):
     
     i = iter(iterable)
     return any(i) and not any(i)
-
-def plot_distrib_with_threshold(data,threshold, flag='_',nbins=100, outdir='./',color='C0'):
-    """ 
-    Plot histogram of a distribution. 
-    
-    Parameters
-    ----------
-    data: np.array points from the distribution
-    threshold: float a threshold to draw
-    flag: string added to the file name of the saved figure
-    nbins: int passed to plt.hist
-    outdir: string directory to save output
-    color: passed to plt.hist
-    
-    returns
-    -------
-    None
-    """
-    fig = plt.figure(1, figsize=(5, 4))
-    plt.hist(data, bins=nbins, density=False,color=color)
-    plt.axvline(x=threshold,color='red') # vertical line
-    outfile=outdir+'Hist_'+flag+'.png'
-    plt.xlim(0.0,1.5)
-    fig.savefig(outfile,dpi=150)
-    print("DONE: "+outfile)
-    plt.clf()
     
 def top_k_select(scores, k):
     return(np.argsort(scores)[::-1][:k])
@@ -136,7 +109,7 @@ class Ranker():
         if self.uncertainty_method=='one_over_margin': 
             des=torch.divide(1,torch.multiply(pred,-1).add(1).multiply(-1).add(pred).pow(2).sqrt()) # 1/abs(x-(1-x)) 
         if 'entropy' in self.uncertainty_method: 
-            des=differentiables_AC.AC_binary_entropy(pred.squeeze(axis=1),self.device)
+            des=differentiables_utils.binary_entropy(pred.squeeze(axis=1),self.device)
         if self.uncertainty_method=='sigma_deep_ensemble': 
             des=torch.zeros(x_batch.shape[0]) # dummy
             preds_deepens=torch.zeros((len(self.Predictive_Models),len(x_batch))).to(self.device)

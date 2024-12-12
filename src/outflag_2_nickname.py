@@ -298,7 +298,7 @@ def get_args_for_nick(nick): # VR5sNlq1M
     elif nick[0]=='G':
         chosen_model='LegNet'
     elif nick[0]=='P':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif nick[0]=='m':
         chosen_model='mpra'
     elif nick[0]=='D':
@@ -312,13 +312,13 @@ def get_args_for_nick(nick): # VR5sNlq1M
     elif nick[0]=='b':
         chosen_model='NewResNet'
     elif nick[0]=='J':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif nick[0]=='c':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif nick[0]=='Q':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif nick[0]=='d':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     else:
         print("ERROR: wrong dataset choice:",nick[0])
         exit()
@@ -331,7 +331,7 @@ def get_args_for_nick(nick): # VR5sNlq1M
         trainmaxep=100
     elif chosen_model=='LegNet':
         trainmaxep=100
-    elif chosen_model=='LegNetPK':
+    elif chosen_model=='LegNet_Custom':
         trainmaxep=100
     elif chosen_model=='mpra':
         trainmaxep=100
@@ -879,7 +879,7 @@ def get_nick_for_outflag(outflag): #VR5sNlq1
     if 'LentiMPRA_' in chosen_dataset:
         if chosen_model=='LegNet':
             reverseddict_dsnick='G'
-        elif chosen_model=='LegNetPK':
+        elif chosen_model=='LegNet_Custom':
             reverseddict_dsnick='P'
         elif chosen_model=='NewResNet':
             reverseddict_dsnick='K'
@@ -900,13 +900,13 @@ def get_nick_for_outflag(outflag): #VR5sNlq1
     elif 'newLentiMPRAHepG2two_' in chosen_dataset and chosen_model=='NewResNet':
         reverseddict_dsnick='b'
 
-    elif 'newLentiMPRAK562_' in chosen_dataset and chosen_model=='LegNetPK':
+    elif 'newLentiMPRAK562_' in chosen_dataset and chosen_model=='LegNet_Custom':
         reverseddict_dsnick='J'
-    elif 'newLentiMPRAHepG2_' in chosen_dataset and chosen_model=='LegNetPK':
+    elif 'newLentiMPRAHepG2_' in chosen_dataset and chosen_model=='LegNet_Custom':
         reverseddict_dsnick='Q'
-    elif 'newLentiMPRAK562two_' in chosen_dataset and chosen_model=='LegNetPK':
+    elif 'newLentiMPRAK562two_' in chosen_dataset and chosen_model=='LegNet_Custom':
         reverseddict_dsnick='c'
-    elif 'newLentiMPRAHepG2two_' in chosen_dataset and chosen_model=='LegNetPK':
+    elif 'newLentiMPRAHepG2two_' in chosen_dataset and chosen_model=='LegNet_Custom':
         reverseddict_dsnick='d'
 
     else:
@@ -989,7 +989,7 @@ if __name__=='__main__':
     elif args.nick[0]=='G':
         chosen_model='LegNet'
     elif args.nick[0]=='P':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     
     elif args.nick[0]=='K':
         chosen_model='NewResNet'
@@ -1001,13 +1001,13 @@ if __name__=='__main__':
         chosen_model='NewResNet'
     
     elif args.nick[0]=='J':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif args.nick[0]=='c':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif args.nick[0]=='Q':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
     elif args.nick[0]=='d':
-        chosen_model='LegNetPK'
+        chosen_model='LegNet_Custom'
 
     elif args.nick[0]=='m':
         chosen_model='mpra'

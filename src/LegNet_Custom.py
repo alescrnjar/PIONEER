@@ -157,7 +157,7 @@ class MapperBlock(nn.Module):
     def forward(self, x):
         return self.block(x)
 
-class LegNetPK(nn.Module):
+class LegNet_Custom(nn.Module):
     def __init__(self,
                  
                  in_ch,

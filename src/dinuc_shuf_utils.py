@@ -1,8 +1,6 @@
 import numpy as np
 import torch
 
-############################ KOO'S https://github.com/p-koo/residualbind/blob/master/dinuc_shuffle.py
-
 def string_to_char_array(seq):
     """
     Converts an ASCII string to a NumPy array of byte-long ASCII codes.
@@ -28,9 +26,6 @@ def one_hot_to_tokens(one_hot):
     tokens = np.tile(one_hot.shape[1], one_hot.shape[0])  # Vector of all D
     seq_inds, dim_inds = np.where(one_hot)
     tokens[seq_inds] = dim_inds
-    #print(f"{tokens=}")
-    #print("ERROR! IT SHOULD BE tokens[dim_inds]=seq_inds to have what you expect!")
-    #exit()
     return tokens
 
 def one_hot_to_tokens_TT(one_hot):
@@ -40,17 +35,9 @@ def one_hot_to_tokens_TT(one_hot):
     assumes that the one-hot encoding is well-formed, with at most one 1 in each
     column (and 0s elsewhere).
     """
-    #tokens = np.tile(one_hot.shape[1], one_hot.shape[0])  # Vector of all D
-    #tokens=torch.empty(0).to(device)
-    #for i in range(one_hot.shape[0]):
-    #    tokens=torch.cat((tokens,one_hot.shape[1]))
-    #print(one_hot.shape)
     tokens = torch.tile(torch.tensor(one_hot.shape[1]), (one_hot.shape[0],)) #.to(device)  # Vector of all D #https://pytorch.org/docs/stable/generated/torch.tile.html
     seq_inds, dim_inds = torch.where(one_hot) #.to(device)
     tokens[seq_inds] = dim_inds
-    #print(f"{tokens=}")
-    #print("ERROR! IT SHOULD BE tokens[dim_inds]=seq_inds to have what you expect!")
-    #exit()
     return tokens
 def one_hot_to_1to4_tokens_TT(one_hot):
     tokens=torch.zeros(one_hot.shape[1],dtype=torch.int)
@@ -77,7 +64,7 @@ def tokens_to_one_hot_TT(tokens, one_hot_dim):
     identity = torch.tensor(np.identity(one_hot_dim + 1)[:, :-1]) #.to(device)  # Last row is all 0s
     return identity[tokens]
 
-def dinuc_shuffle_AC(seq, num_shufs=None, rng=None):
+def dinuc_shuffle(seq, num_shufs=None, rng=None):
     """
     Creates shuffles of the given sequence, in which dinucleotide frequencies
     are preserved.
@@ -181,20 +168,4 @@ def random_ohe_seq(seq_len):
     one_hot.scatter_(1, indices, 1)
     return one_hot
 
-if __name__=='__main__':
-    seq_len=230
-    x=random_ohe_seq(seq_len=230)
-    print(f"{x.shape=}")
-    print(f"{torch.sum(x[:,0,:])=} {torch.sum(x[:,1,:])=} {torch.sum(x[:,2,:])=} {torch.sum(x[:,3,:])=}")
 
-    xp=x.permute(0,2,1)
-    #print(f"{x=}")
-    #print(type(x) is torch.Tensor,x.shape)
-    x_din=dinuc_shuffle_AC(xp[0])
-    x_din=x_din.unsqueeze(0).permute(0,2,1)
-    #print(f"{x_din=}")
-    z=x_din
-    print(f"{z.shape=}")
-    print(f"{torch.sum(z[:,0,:])=} {torch.sum(z[:,1,:])=} {torch.sum(z[:,2,:])=} {torch.sum(z[:,3,:])=}")
-    #print(x==z)
-    print((x==z).all())

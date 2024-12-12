@@ -2,7 +2,6 @@ import os
 import sys
 
 import tqdm
-import is_seq_in_xtrain
 
 if os.uname()[1]=='auros': 
     sys.path.append('/home/alessandro/Documents/GitHub_Local/bmdal_reg_custom/')
@@ -18,8 +17,6 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import numpy as np
-
-import is_seq_in_xtrain
 
 def batch_selection_method(
     x_train, x_pool, n_to_make, models, y_train,

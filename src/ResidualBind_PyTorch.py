@@ -51,9 +51,9 @@ class residual_block(nn.Module):
         out=self.final_activ(out) # standardrelu1 TRUESOFT+?
         return out
 
-class ResidualBind_AC(nn.Module):
+class ResidualBind(nn.Module):
     def __init__(self, input_shape=(41,4), num_class=1, classification=False, with_residual=True, activation='ReLU', wanted_initial_attention=False, wanted_hook=False):
-        super(ResidualBind_AC, self).__init__()
+        super(ResidualBind, self).__init__()
         self.input_shape = input_shape
         self.num_class = num_class
         self.classification = classification

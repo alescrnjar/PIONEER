@@ -14,11 +14,12 @@ import time #QUIQUINONURG temporary
 import torch.multiprocessing as mp
 from filelock import FileLock 
 from pool_gen import SequenceProposer
+from ranker import Ranker, PowerRanker, SoftmaxRanker, SoftrankRanker
 
-import set_torch_tensors_test
+import lookup_ohe_dna_utils
 
 #External packages
-import bmdal_dholzmueller
+import bmdal_utils
 
 parser = argparse.ArgumentParser()
 
@@ -126,9 +127,6 @@ class Single_Object_Score(): #QUIQUIURG do I need "super"?
     def __init__(self,method_name,score_value):
         self.method_name=method_name
         self.score_value=score_value
-
-import differentiables_AC
-from ranker import Ranker, PowerRanker, SoftmaxRanker, SoftrankRanker
 
 def make_h5_data_module(data_X_train,data_y_train,
                      data_X_test,data_y_test,
@@ -815,13 +813,13 @@ class Deep_Active_Learning_Cycles:
                                     track_pref = self.outdir+self.outflag) 
                     proposed_X_3=sp3.generate_batch(100000, np.concatenate((X_source,X_source,X_source,X_source,X_source)), mut_per_cycle, cycles, ranker_sp, temp) #AC this way there is no overlap among proposed_X_1, proposed_X_2, and proposed_X_3
 
-                    new_batch_indexes_batched_sp_1=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_1=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_1), n_to_make=25000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
-                    new_batch_indexes_batched_sp_2=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_2=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_2), n_to_make=25000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
-                    new_batch_indexes_batched_sp_3=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_3=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_3), n_to_make=10000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
                     proposed_X_1=proposed_X_1[new_batch_indexes_batched_sp_1]
@@ -855,13 +853,13 @@ class Deep_Active_Learning_Cycles:
                                     track_pref = self.outdir+self.outflag) 
                     proposed_X_3=sp3.generate_batch(20000, X_source, mut_per_cycle, cycles, ranker_sp, temp) #AC this way there is no overlap among proposed_X_1, proposed_X_2, and proposed_X_3
 
-                    new_batch_indexes_batched_sp_1=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_1=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_1), n_to_make=5000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
-                    new_batch_indexes_batched_sp_2=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_2=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_2), n_to_make=5000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
-                    new_batch_indexes_batched_sp_3=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
+                    new_batch_indexes_batched_sp_3=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), 
                                                                                              x_pool=torch.tensor(proposed_X_3), n_to_make=2000, #self.how_many_new_batches_at_once*self.batch_size, 
                                                                                              models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
                     proposed_X_1=proposed_X_1[new_batch_indexes_batched_sp_1]
@@ -1013,7 +1011,7 @@ class Deep_Active_Learning_Cycles:
                     exit()
 
                 if self.screm:
-                    proposed_X=torch.tensor(np.array(set_torch_tensors_test.lookup_dna_to_ohe(list(set(set_torch_tensors_test.lookup_ohe_to_dna(proposed_X))-set(set_torch_tensors_test.lookup_ohe_to_dna(self.updated_full_X))))),dtype=torch.float32) 
+                    proposed_X=torch.tensor(np.array(lookup_ohe_dna_utils.lookup_dna_to_ohe(list(set(lookup_ohe_dna_utils.lookup_ohe_to_dna(proposed_X))-set(lookup_ohe_dna_utils.lookup_ohe_to_dna(self.updated_full_X))))),dtype=torch.float32) 
                 proposed_y=self.Oracle_Model.interrogate(proposed_X)
                 proposed_y = proposed_y.detach().cpu().numpy()
                 if seq_method_i=='evoaugassign':
@@ -1191,21 +1189,21 @@ class Deep_Active_Learning_Cycles:
                         new_batch_indexes_batched_sp=new_batch_indexes_batched_sp[:self.how_many_new_batches_at_once*self.batch_size] 
 
                     elif self.seq_method=='BatchBALDsubsel':
-                        new_batch_indexes_batched_sp=bmdal_dholzmueller.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='maxdet',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
+                        new_batch_indexes_batched_sp=bmdal_utils.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='maxdet',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
                     elif self.seq_method=='BADGEsubsel' or self.seq_method=='BADGEfromt':
-                        new_batch_indexes_batched_sp=bmdal_dholzmueller.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='kmeanspp',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
+                        new_batch_indexes_batched_sp=bmdal_utils.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='kmeanspp',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
                     elif self.seq_method=='LCMDsubsel' or self.seq_method=='LCMDfromt' or self.seq_method=='LCMDfromd' or self.seq_method=='LCMDfromJ':
-                        new_batch_indexes_batched_sp=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), x_pool=torch.tensor(proposed_X), n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
+                        new_batch_indexes_batched_sp=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), x_pool=torch.tensor(proposed_X), n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
 
                     elif self.seq_method=='concatBADGE1':
-                        new_batch_indexes_batched_sp=bmdal_dholzmueller.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='kmeanspp',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
+                        new_batch_indexes_batched_sp=bmdal_utils.batch_selection_method(x_train=self.updated_full_X, x_pool=proposed_X, n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0]], y_train=self.updated_full_y, selection_method='kmeanspp',external_batch_size=self.batch_size) #QUIQUIURG not sure about x_train=self.updated_full_X
                         how_many_method_1=np.where((new_batch_indexes_batched_sp < n_to_make1))[0]
                         how_many_method_2=np.where((new_batch_indexes_batched_sp > n_to_make1) & (new_batch_indexes_batched_sp < 2*n_to_make1))[0]
                         how_many_method_3=np.where((new_batch_indexes_batched_sp > 2*n_to_make1))[0]
                         final_proposed_X=proposed_X[new_batch_indexes_batched_sp] #AC This is not an error, should be here 
                         final_proposed_y=proposed_y[new_batch_indexes_batched_sp]
                     elif self.seq_method=='concatLCMD1' or self.seq_method=='concatTEMPALCMD1':
-                        new_batch_indexes_batched_sp=bmdal_dholzmueller.batch_selection_method(x_train=torch.tensor(self.updated_full_X), x_pool=torch.tensor(proposed_X), n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
+                        new_batch_indexes_batched_sp=bmdal_utils.batch_selection_method(x_train=torch.tensor(self.updated_full_X), x_pool=torch.tensor(proposed_X), n_to_make=self.how_many_new_batches_at_once*self.batch_size, models=[self.DAL_Models[0].to('cpu')], y_train=self.updated_full_y, selection_method='lcmd',external_batch_size=self.batch_size, base_kernel='grad', kernel_transforms=[('rp', [512])], sel_with_train=True) #QUIQUIURG not sure about x_train=self.updated_full_X
                         n_to_make1=self.generated_U #QUIQUIURG why is this necessary? it shoudln't! n_to_make1 should be defined at this point!
                         how_many_method_1=np.where((new_batch_indexes_batched_sp < n_to_make1))[0]
                         how_many_method_2=np.where((new_batch_indexes_batched_sp > n_to_make1) & (new_batch_indexes_batched_sp < 2*n_to_make1))[0]

@@ -9,9 +9,9 @@ import tqdm
 
 import h5py
 import os
-import dinuc_shuf_AC
+import dinuc_shuf_utils
 
-import PL_Models_interpr_utils
+import captum_utils
 
 if os.uname()[1]=='galaxy1':
     import sys
@@ -158,7 +158,7 @@ class SequenceProposer(object):
         X_new=torch.empty(0)
         for x in originals:
             xp=torch.tensor(x).unsqueeze(0).permute(0,2,1)
-            x_din=dinuc_shuf_AC.dinuc_shuffle_AC(xp[0])
+            x_din=dinuc_shuf_utils.dinuc_shuffle(xp[0])
             X_new=torch.cat((X_new,x_din.unsqueeze(0).permute(0,2,1)),axis=0)
         return X_new
 
@@ -227,7 +227,7 @@ class SequenceProposer(object):
             X_imported=torch.tensor(np.array(data['X_train'])) ##.requires_grad_(True)
         elif chosen_model=='DeepSTARR':
             X_imported = torch.tensor(np.array(data['X_train'])) #(402278, 4, 249)
-        elif chosen_model=='LegNetPK':
+        elif chosen_model=='LegNet_Custom':
             X_imported=torch.tensor(np.array(data['X_train'])) ##.requires_grad_(True)
         elif chosen_model=='NewResNet':
             X_imported=torch.tensor(np.array(data['X_train'])) ##.requires_grad_(True)
@@ -447,7 +447,7 @@ class SequenceProposer(object):
 
         elif 'GradientSHAP' in self.generation_method:
             for bbatch in np.array_split(to_mutate, ceil(len(to_mutate)/10)):
-                grad=PL_Models_interpr_utils.captum_gradientshap_no_y_no_index(bbatch,model=ranker.Predictive_Models[0],todevice=True, apply_corr=True, null_method='standard', device='cuda', num_background = 1000)
+                grad=captum_utils.captum_gradientshap_no_y_no_index(bbatch,model=ranker.Predictive_Models[0],todevice=True, apply_corr=True, null_method='standard', device='cuda', num_background = 1000)
                 batch_sails.append(grad.detach().cpu().numpy())
 
         elif 'DeepLiftSHAP' in self.generation_method:

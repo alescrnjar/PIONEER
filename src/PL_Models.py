@@ -14,10 +14,10 @@ import math
 
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
-import deepstarr_model_with_init 
+import deepstarr_custom
 import tqdm
 
-import wpcc_AC
+import wpcc_utils
 
 def get_github_main_directory(reponame='DALdna'):
     currdir=os.getcwd()
@@ -64,7 +64,7 @@ class PL_DeepSTARR(pl.LightningModule):
                  ):
         super().__init__()
         self.scale=scale
-        self.model=deepstarr_model_with_init.DeepSTARR(output_dim=1, initialization=initialization, initialize_dense=initialize_dense) #.to(device) #goodold
+        self.model=deepstarr_custom.DeepSTARR(output_dim=1, initialization=initialization, initialize_dense=initialize_dense) #.to(device) #goodold
 
         self.name='DeepSTARR'
         self.task_type='single_task_regression'
@@ -226,7 +226,7 @@ class PL_DeepSTARR(pl.LightningModule):
 
 #################################################################################################################
 
-import ResidualBind_PyTorch_AC
+import ResidualBind_PyTorch
 
 class PL_ResidualBind(pl.LightningModule):
     def __init__(self,
@@ -290,7 +290,7 @@ class PL_ResidualBind(pl.LightningModule):
 
         num_class = 1
 
-        self.model=eval('ResidualBind_PyTorch_AC.ResidualBind_AC(input_shape, num_class, with_residual=True '+extra_str+')')
+        self.model=eval('ResidualBind_PyTorch.ResidualBind(input_shape, num_class, with_residual=True '+extra_str+')')
 
         self.name='ResidualBind'
         self.task_type='single_task_regression'
@@ -373,17 +373,17 @@ class PL_ResidualBind(pl.LightningModule):
 
         vals = []
         for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.wpearsonr(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+            vals.append(wpcc_utils.wpearsonr(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
         wpcc_vals=np.array(vals)
 
         vals = []
         for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+            vals.append(wpcc_utils.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
         mse_vals=np.array(vals)
 
         vals = []
         for output_index in range(y_score.shape[-1]):
-            vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+            vals.append(wpcc_utils.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
         wmse_vals=np.array(vals)
 
         #metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals}
@@ -460,8 +460,8 @@ def initialize_weights(m):
         if m.bias is not None:
             nn.init.constant_(m.bias.data, 0)
 
-import LegNetPK  #HUMAN
-class PL_LegNetPK(pl.LightningModule): 
+import LegNet_Custom  #HUMAN
+class PL_LegNet_Custom(pl.LightningModule): 
     def __init__(self,
                  
                  #lr=0.001, weight_decay=1e-6, decay_factor=0.1, patience=5
@@ -533,11 +533,11 @@ class PL_LegNetPK(pl.LightningModule):
             self.metric_names=['PCC','Spearman','MSE']
 
         if self.has_aleatoric=='no':
-            self.model=LegNetPK.LegNetPK(4) #.to(device)
+            self.model=LegNet_Custom.LegNet_Custom(4) #.to(device)
         elif self.has_aleatoric=='heteroscedastic':
-            self.model=LegNetPK.LegNetPK(in_ch=4,unc_control='heteroscedastic') #.to(device)
+            self.model=LegNet_Custom.LegNet_Custom(in_ch=4,unc_control='heteroscedastic') #.to(device)
         elif self.has_aleatoric=='evidential':
-            self.model=LegNetPK.LegNetPK(in_ch=4,unc_control='evidential') #.to(device)
+            self.model=LegNet_Custom.LegNet_Custom(in_ch=4,unc_control='evidential') #.to(device)
 
         self.name='LegNet'
         self.task_type='single_task_regression'
@@ -623,7 +623,7 @@ class PL_LegNetPK(pl.LightningModule):
 
             vals = []
             for output_index in range(y_score.shape[-1]):
-                vals.append(wpcc_AC.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
+                vals.append(wpcc_utils.weighted_mse(y_true[:,output_index], y_score[:,output_index], m=-20,M=20, no_weights=True))   # min(data_y)=-6.0841165 np.mean(data_y)=2.1911403e-07 max(data_y)=5.501902
             mse_vals=np.array(vals)
 
             metrics={'Spearman':spearmanr_vals,'PCC':pearsonr_vals,'MSE':mse_vals} #,'WPCC':wpcc_vals,'WMSE':wmse_vals}
